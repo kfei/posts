@@ -51,19 +51,19 @@
 
 &lt;p&gt;總算利用空閒的假日時間把 &lt;a href=&#34;https://github.com/kfei/sshcam&#34;&gt;sshcam&lt;/a&gt; 這兩個重要的功能補完了!&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/sWBkJ4BzRtmeZJT2zrI8_Screen%20Shot%202015-01-19%20at%2010.44.29%20PM.png&#34; alt=&#34;Screen Shot 2015-01-19 at 10.44.29 PM.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/1.png&#34; alt=&#34;1.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;2-倍垂直解析度:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;2 倍垂直解析度&lt;/h2&gt;
 
 &lt;p&gt;利用 Unicode HALF BLOCK 字元 (&lt;a href=&#34;http://www.alanwood.net/unicode/block_elements.html&#34;&gt;U+2580/U+2584&lt;/a&gt;) 在一個 row 裡面插入兩條水平掃描線. 解析度提高一倍之外, 每個 &amp;ldquo;pixel&amp;rdquo; 看起來也更趨近正方形:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://i.imgur.com/1lHcSkM.png&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/7.png&#34; alt=&#34;7.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;ASCII Only:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/VNwTy4bqTSmbM5PgLppY_XD6A0EJ.png&#34; alt=&#34;XD6A0EJ.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/2.png&#34; alt=&#34;2.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Unicode HALF BLOCK:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/3.png&#34; alt=&#34;3.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;再更進一步, 事實上 Unicode 字元集裡還有 QUADRANT BLOCK (U+2596 to U+259F) 可以同理將水平方向的 pixel 增加一倍, 不過依然還是只有兩個顏色可以用, 效果很有限就是了. 且考慮到目前畫面 refresh 已經有一些遲頓, 因此暫時不實作, 等 render 的效能問題解決之後再來玩.&lt;/p&gt;
 
@@ -72,10 +72,10 @@
 &lt;p&gt;原來只支援灰階顯示的原因在於 RGB 到 xterm 256 色盤的映射, 用簡單幾何距離計算色距的效果太差, 畫面的辨識度比灰階模式低許多. 但後來試了 &lt;a href=&#34;http://www.chromapure.com/colorscience-CIE94.asp&#34;&gt;CIE94&lt;/a&gt; 演算法之後發現效果有明顯改善, 因此也就加上 &lt;code&gt;--color&lt;/code&gt; 模式.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Grayscale:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/4.png&#34; alt=&#34;4.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Colorized:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/1s4rAE4lS3ezwMLy4E5W_2fVyRTJ.png&#34; alt=&#34;2fVyRTJ.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/5.png&#34; alt=&#34;5.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;不過, 彩色模式下的畫面 refresh 遲頓感似乎又升高了一級, 猜測可能跟大量的 ANSI 控制碼有關, 這個問題留待有時間再來研究研究. (&lt;em&gt;Update 20150120:&lt;/em&gt; 遲鈍感已透過引入 frame caching 及大量減少 Printf 獲得改善) 再來如果還想更暴力一點, 其實已經有不少 terminal emulator &lt;a href=&#34;https://gist.github.com/XVilka/8346728&#34;&gt;支援 True Color 模式&lt;/a&gt;了&amp;hellip;&lt;/p&gt;
 

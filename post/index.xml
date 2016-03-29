@@ -51,19 +51,19 @@
 
 &lt;p&gt;總算利用空閒的假日時間把 &lt;a href=&#34;https://github.com/kfei/sshcam&#34;&gt;sshcam&lt;/a&gt; 這兩個重要的功能補完了!&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/sWBkJ4BzRtmeZJT2zrI8_Screen%20Shot%202015-01-19%20at%2010.44.29%20PM.png&#34; alt=&#34;Screen Shot 2015-01-19 at 10.44.29 PM.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/1.png&#34; alt=&#34;1.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;2-倍垂直解析度:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;2 倍垂直解析度&lt;/h2&gt;
 
 &lt;p&gt;利用 Unicode HALF BLOCK 字元 (&lt;a href=&#34;http://www.alanwood.net/unicode/block_elements.html&#34;&gt;U+2580/U+2584&lt;/a&gt;) 在一個 row 裡面插入兩條水平掃描線. 解析度提高一倍之外, 每個 &amp;ldquo;pixel&amp;rdquo; 看起來也更趨近正方形:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://i.imgur.com/1lHcSkM.png&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/7.png&#34; alt=&#34;7.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;ASCII Only:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/VNwTy4bqTSmbM5PgLppY_XD6A0EJ.png&#34; alt=&#34;XD6A0EJ.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/2.png&#34; alt=&#34;2.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Unicode HALF BLOCK:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/3.png&#34; alt=&#34;3.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;再更進一步, 事實上 Unicode 字元集裡還有 QUADRANT BLOCK (U+2596 to U+259F) 可以同理將水平方向的 pixel 增加一倍, 不過依然還是只有兩個顏色可以用, 效果很有限就是了. 且考慮到目前畫面 refresh 已經有一些遲頓, 因此暫時不實作, 等 render 的效能問題解決之後再來玩.&lt;/p&gt;
 
@@ -72,10 +72,10 @@
 &lt;p&gt;原來只支援灰階顯示的原因在於 RGB 到 xterm 256 色盤的映射, 用簡單幾何距離計算色距的效果太差, 畫面的辨識度比灰階模式低許多. 但後來試了 &lt;a href=&#34;http://www.chromapure.com/colorscience-CIE94.asp&#34;&gt;CIE94&lt;/a&gt; 演算法之後發現效果有明顯改善, 因此也就加上 &lt;code&gt;--color&lt;/code&gt; 模式.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Grayscale:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/4.png&#34; alt=&#34;4.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Colorized:&lt;/strong&gt;
-&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/1s4rAE4lS3ezwMLy4E5W_2fVyRTJ.png&#34; alt=&#34;2fVyRTJ.png&#34; /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://kfei.net/posts/images/assets/2015-01-19-sshcam-v098-release-notes/5.png&#34; alt=&#34;5.png&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;不過, 彩色模式下的畫面 refresh 遲頓感似乎又升高了一級, 猜測可能跟大量的 ANSI 控制碼有關, 這個問題留待有時間再來研究研究. (&lt;em&gt;Update 20150120:&lt;/em&gt; 遲鈍感已透過引入 frame caching 及大量減少 Printf 獲得改善) 再來如果還想更暴力一點, 其實已經有不少 terminal emulator &lt;a href=&#34;https://gist.github.com/XVilka/8346728&#34;&gt;支援 True Color 模式&lt;/a&gt;了&amp;hellip;&lt;/p&gt;
 
@@ -341,7 +341,9 @@ gitlab-rake cache:clear RAILS_ENV=production
       <pubDate>Tue, 01 Jul 2014 01:52:00 +0800</pubDate>
       
       <guid>https://kfei.net/posts/2014/07/%E5%8F%AF%E6%86%90%E7%9A%84-no-ip/</guid>
-      <description>&lt;p&gt;微軟聲稱 No-IP 旗下 23 個 domain 嚴重地被 malware creators 濫用, 因此要求聯邦法院將該 23 個 domain 的管轄權判給微軟, 好讓其可以 &lt;strong&gt;過濾&lt;/strong&gt; 惡意網域, &lt;strong&gt;重定向&lt;/strong&gt; 惡意流量, &lt;strong&gt;造福&lt;/strong&gt; 廣大的網路用戶, &lt;strong&gt;維繫&lt;/strong&gt; 地球和平.&lt;/p&gt;
+      <description>&lt;p&gt;微軟聲稱 No-IP 旗下 23 個 domain 嚴重地被 malware creators 濫用,
+因此要求聯邦法院將該 23 個 domain 的管轄權判給微軟, 好讓其可以 &lt;strong&gt;過濾&lt;/strong&gt;
+惡意網域, &lt;strong&gt;重定向&lt;/strong&gt; 惡意流量, &lt;strong&gt;造福&lt;/strong&gt; 廣大的網路用戶, &lt;strong&gt;維繫&lt;/strong&gt; 地球和平.&lt;/p&gt;
 
 &lt;p&gt;而聯邦法院居然還真的准了!!!&lt;/p&gt;
 
@@ -349,16 +351,26 @@ gitlab-rake cache:clear RAILS_ENV=production
 
 &lt;p&gt;這絕對是史上最扯蛋的判決之一, 美國的恐龍法官和微軟的無恥程度同樣讓人驚嘆不已&amp;hellip;&lt;/p&gt;
 
-&lt;p&gt;按照這個神邏輯, Sony 可以跟法庭主張 YouTube 上經常有人上傳侵權影片, 然後申請接管 YouTube.com, 接著就可以做一些 &lt;strong&gt;善意&lt;/strong&gt; 的 traffic re-routing! 同理, 隨便一家作業系統廠商也可以跟法庭主張因為微軟的作業系統根本是 malware 溫床(事實如此), 所以要接管所有安裝了 Windows 系統的電腦?&lt;/p&gt;
+&lt;p&gt;按照這個神邏輯, Sony 可以跟法庭主張 YouTube 上經常有人上傳侵權影片,
+然後申請接管 YouTube.com, 接著就可以做一些 &lt;strong&gt;善意&lt;/strong&gt; 的 traffic re-routing!
+同理, 隨便一家作業系統廠商也可以跟法庭主張因為微軟的作業系統根本是 malware
+溫床(事實如此), 所以要接管所有安裝了 Windows 系統的電腦?&lt;/p&gt;
 
-&lt;p&gt;結果是 No-IP 絕大多數無辜使用者被迫斷線, 因為 &lt;strong&gt;微軟的垃圾技術&lt;/strong&gt; 根本支撐不了 No-IP 的 daily requests.&lt;/p&gt;
+&lt;p&gt;結果是 No-IP 絕大多數無辜使用者被迫斷線, 因為 &lt;strong&gt;微軟的垃圾技術&lt;/strong&gt; 根本支撐不了
+No-IP 的 daily requests.&lt;/p&gt;
 
 &lt;p&gt;雖然我改用 Cloudflare 很久了. 在此還是為曾經的 No-IP 默哀.&lt;/p&gt;
 
-&lt;p&gt;後記. 現在透過 &lt;code&gt;dig -t ns no-ip.biz&lt;/code&gt; 可以發現 no-ip.biz 已經被 &lt;strong&gt;microsoftinternetsafety.net&lt;/strong&gt; 接管, 網友表示:
-&amp;gt; The funny thing is that &amp;ldquo;microsoftinternetsafety.net&amp;rdquo; sounds just like a domain that a fake antivirus software would use.&lt;/p&gt;
+&lt;p&gt;後記. 現在透過 &lt;code&gt;dig -t ns no-ip.biz&lt;/code&gt; 可以發現 no-ip.biz 已經被
+&lt;strong&gt;microsoftinternetsafety.net&lt;/strong&gt; 接管, 網友表示:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The funny thing is that &amp;ldquo;microsoftinternetsafety.net&amp;rdquo; sounds just like a domain that a fake antivirus software would use.&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;p&gt;真的! M$ 這個爛 domain 超像惡意程式假造安全工具時會取的名字, 就跟惡霸假裝好人一樣.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://kfei.net/posts/images/assets/2014-07-01-poor-no-ip/count.png&#34; alt=&#34;Share status before migration&#34; /&gt;&lt;/p&gt;
 </description>
     </item>
     
