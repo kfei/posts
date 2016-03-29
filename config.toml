@@ -1,0 +1,51 @@
+baseurl = "https://kfei.net/posts/"
+canonifyurls = true
+languageCode = "zh-tw"
+title = "kfei's brainfuck"
+theme = "casper"
+hasCJKLanguage = true
+
+[params]
+  description = "To dream and to build. To fail and to succeed."
+  cover = "images/cover_milkr.jpg"
+  author = "kfei"
+  authorlocation = "Kaohsiung, Taiwan"
+  authorwebsite = "https://kfei.net"
+  bio= "Hacker / Tenniser / Photographer / Diver / Entrepreneur"
+  # logo = "images/logo.png"
+  googleAnalyticsUserID = "UA-75632970-1"
+  githubName = "kfei"
+  twitterName = "linkfei"
+  facebookName = "g8.kfei"
+  hideHUGOSupport = true 
+
+[permalinks]
+  post = "/:year/:month/:title/"
+
+[[menu.main]]
+  name = "Posts"
+  weight = -120
+  identifier = "posts"
+  url = "/"
+
+[[menu.main]]
+  name = "GitHub repos"
+  weight = 100
+  pre = "<h3>Elsewhere</h3>"
+  url = "https://github.com/kfei"
+
+[[menu.main]]
+  name = "Facebook timeline"
+  weight = 101
+  url = "https://facebook.com/g8.kfei"
+
+[[menu.main]]
+  name = "Twitter murmur"
+  weight = 102
+  url = "https://twitter.com/linkfei"
+
+[[menu.main]]
+  name = "Keybase"
+  weight = 109
+  pre = "<h3>Contact me</h3>"
+  url = "https://keybase.io/kfei"
