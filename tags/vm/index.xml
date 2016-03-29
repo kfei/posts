@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vm on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/vm/</link>
+    <description>Recent content in Vm on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Fri, 13 Jun 2014 09:05:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/vm/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Persistent cache in QEMU or librbd?</title>
+      <link>https://kfei.net/posts/2014/06/persistent-cache-in-qemu-or-librbd/</link>
+      <pubDate>Fri, 13 Jun 2014 09:05:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/persistent-cache-in-qemu-or-librbd/</guid>
+      <description>&lt;p&gt;我們知道無論是 QEMU 或是 librbd 都有提供 writeback cache. 同時也有兩個明顯的效能議題:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;cache 的生命週期跟隨 QEMU process, 也就是說一旦 VM shutdown, cache 也就跟著消失.&lt;/li&gt;
+&lt;li&gt;多個 QEMU process 間無法共享 cache, 而這在某些情境 (e.g. VDI) 下卻非常有用.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;解決這兩個問題的方式無非是將 cache 持久化在一些高速裝置上. 事實上大約一年前在 QEMU 的 mailing list 上就&lt;a href=&#34;https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg03649.html&#34;&gt;討論&lt;/a&gt;過這個議題, Ceph 的作者也發表了看法, 只可惜後續好像沒什麼進展?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Set up port-forwarding via libvirt&#39;s hook</title>
+      <link>https://kfei.net/posts/2014/03/set-up-port-forwarding-via-libvirts-hook/</link>
+      <pubDate>Tue, 25 Mar 2014 13:25:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/set-up-port-forwarding-via-libvirts-hook/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s a bad idea using one file to maintain all port-forwarding rules for VMs.
+In such a traditional environment (without SDN I mean), consider libvirt&amp;rsquo;s hook
+mechanism as a more modular way.&lt;/p&gt;
+
+&lt;p&gt;For Ubuntu, edit &lt;code&gt;/etc/libvirt/hooks/qemu&lt;/code&gt; and then restart the &lt;code&gt;libvirt-bin&lt;/code&gt;
+service.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# file: /etc/libvirt/hooks/qemu 
+#!/bin/sh
+
+GUEST_NAME=FiveFiveSixSix
+HOST_PORT=5566
+GUEST_IPADDR=5.5.6.6
+GUEST_PORT=5566
+
+if [ &amp;quot;$1&amp;quot; = &amp;quot;$GUEST_NAME&amp;quot; ]; then
+  if [ &amp;quot;$2&amp;quot; = start ]; then
+    iptables -t nat -A PREROUTING -p tcp --dport &amp;quot;$HOST_PORT&amp;quot; \
+         -j DNAT --to &amp;quot;$GUEST_IPADDR:$GUEST_PORT&amp;quot;
+    iptables -I FORWARD -d &amp;quot;$GUEST_IPADDR/32&amp;quot; -p tcp -m state \
+         --state NEW -m tcp --dport &amp;quot;$GUEST_PORT&amp;quot; -j ACCEPT
+  elif [ &amp;quot;$2&amp;quot; = stopped ]; then
+    iptables -t nat -D PREROUTING -p tcp --dport &amp;quot;$HOST_PORT&amp;quot; \
+         -j DNAT --to &amp;quot;$GUEST_IPADDR:$GUEST_PORT&amp;quot;
+    iptables -D FORWARD -d &amp;quot;$GUEST_IPADDR/32&amp;quot; -p tcp -m state \
+         --state NEW -m tcp --dport &amp;quot;$GUEST_PORT&amp;quot; -j ACCEPT
+  fi
+fi
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>virsh error: Cannot allocate memory</title>
+      <link>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</link>
+      <pubDate>Mon, 11 Nov 2013 13:10:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</guid>
+      <description>&lt;p&gt;Today I was trying to increase memory size on a qemu-kvm hosted VM. My plan was as simple as shut it down and then change memory setting via &lt;code&gt;virsh edit &amp;lt;VMName&amp;gt;&lt;/code&gt;, but both &lt;code&gt;virsh edit&lt;/code&gt; and &lt;code&gt;virsh start&lt;/code&gt; throws the same error message:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;error: cannot fork child process: Cannot allocate memory&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;It&amp;rsquo;s weird because &lt;code&gt;free&lt;/code&gt; shows me a sufficient amount of memory. But the fact is VM won&amp;rsquo;t boot anymore and even edit its definition file is impossible. Google gives me an answer: &lt;code&gt;sysctl -w vm.overcommit_memory=1&lt;/code&gt;, but it doesn&amp;rsquo;t work.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# from kernel documentation
+overcommit_memory:
+
+This value contains a flag that enables memory overcommitment.
+
+When this flag is 0, the kernel attempts to estimate the amount
+of free memory left when userspace requests more memory.
+
+When this flag is 1, the kernel pretends there is always enough
+memory until it actually runs out.
+
+When this flag is 2, the kernel uses a &amp;quot;never overcommit&amp;quot;
+policy that attempts to prevent any overcommit of memory.
+Note that user_reserve_kbytes affects this policy.
+
+This feature can be very useful because there are a lot of
+programs that malloc() huge amounts of memory &amp;quot;just-in-case&amp;quot;
+and don&#39;t use much of it.
+
+The default value is 0.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It does make sense! But seems qemu-kvm runtime parameter doesn&amp;rsquo;t affected by &lt;code&gt;sysctl&lt;/code&gt;, so I tried &lt;code&gt;echo 1 &amp;gt; /proc/sys/vm/overcommit_memory&lt;/code&gt; and it just works!&lt;/p&gt;
+
+&lt;p&gt;Note that there are some useful actions for memory management:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 3 means release all cache, including pagecache, dentries, inodes
+echo 3 &amp;gt; /proc/sys/vm/drop_caches
+# compact memory such that free memory is available in contiguous blocks
+echo 1 &amp;gt; compact_memory
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Still confused about why &lt;code&gt;free&lt;/code&gt; tells me OK, but &lt;code&gt;virsh start&lt;/code&gt; negative?&lt;/p&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&#34;&gt;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 20131112&lt;/strong&gt;
+Seems legacy libvirtd (in this case 0.12.0) has a memory leak issue under some situations, so &lt;code&gt;/etc/init.d/libvirtd restart&lt;/code&gt; may solve this problem better. Upgraded to 1.1.1 and watching&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Directly access the file system inside a VM disk image</title>
+      <link>https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/</link>
+      <pubDate>Wed, 23 Oct 2013 08:40:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/</guid>
+      <description>&lt;p&gt;Consider a situation that you want to change some settings i.e. edit some files
+in VM, it&amp;rsquo;ll be nice if you don&amp;rsquo;t have to boot it up then log in to make some
+changes. So the question becomes how to access the file system inside the VM
+disk image file?&lt;/p&gt;
+
+&lt;p&gt;To simplify the problem, assume you were using RAW format, if not, convert it by:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;qemu-img convert old-hd.qcow2 hd.raw
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next step is to calculate the partition offset.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ file hd.raw 
+hda.raw: x86 boot sector; GRand Unified Bootloader, stage1 version 0x3, boot drive 0x80, 1st sector stage2 0x849f8, GRUB version 0.94; partition 1: ID=0x83, active, starthead 32, startsector 2048, 1024000 sectors; partition 2: ID=0x8e, starthead 221, startsector 1026048, 124803072 sectors, code offset 0x48
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Look at the &lt;strong&gt;startsector 2048&lt;/strong&gt; portion of output, this means that the
+filesystem itself starts on sector 2048, and typically this is the /boot
+partition. So to access the /boot partition you can mount the image with an
+&lt;code&gt;offset&lt;/code&gt; parameter, which in this case is 2048 times 512 (the size of
+a sector), 1048576. For other partitions, &lt;code&gt;fdisk -l hd.raw&lt;/code&gt; will be useful.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mount -o loop,offset=1048576 hd.raw /mnt/hdp1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Further, if there is LVM inside, partitions cannot be mounted using &amp;lsquo;mount&amp;rsquo;. In
+such a case the image could be mounted with: &lt;code&gt;bash
+$ vgscan
+  Reading all physical volumes.  This may take a while...
+  Found volume group &amp;quot;&amp;lt;VGName&amp;gt;&amp;quot; using metadata type lvm2
+$ vgchange -ay
+   2 logical volume(s) in volume group &amp;quot;&amp;lt;VGName&amp;gt;&amp;quot; now active
+$ mount /dev/&amp;lt;VGName&amp;gt;/&amp;lt;LogicalVolumeName&amp;gt; /mnt/hdpN
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;http://en.wikibooks.org/wiki/QEMU/Images#Mounting_an_image_on_the_host&#34;&gt;http://en.wikibooks.org/wiki/QEMU/Images#Mounting_an_image_on_the_host&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

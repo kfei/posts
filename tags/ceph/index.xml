@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ceph on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/ceph/</link>
+    <description>Recent content in Ceph on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Wed, 11 Jun 2014 03:36:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/ceph/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>CRUSH on single host</title>
+      <link>https://kfei.net/posts/2014/06/crush-on-single-host/</link>
+      <pubDate>Wed, 11 Jun 2014 03:36:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/crush-on-single-host/</guid>
+      <description>&lt;p&gt;The CRUSH algorithm intends to distribute objects across different hosts, so if
+you set up all OSDs on the same host, CRUSH will complians. For instance,
+a Ceph cluster with 3 OSDs on single host will likely get a &lt;code&gt;65 active, 54
+active+degraded, 73 active+remapped&lt;/code&gt; state when fresh-deployed, which was
+supposed to be &lt;code&gt;192 active+clean&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;But sometimes we really expect it to work on just one host, in order to change
+CRUSH&amp;rsquo;s policy, get the current CRUSH map and add a simple fix, then push the
+map back to cluster:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo ceph osd getcrushmap -o /tmp/crushmap
+sudo crushtool -d /tmp/crushmap -o /tmp/crushmap.txt
+sudo vi /tmp/crushmap.txt
+# Find a line: &amp;quot;step chooseleaf firstn 0 type host&amp;quot;,
+# and change it to &amp;quot;step chooseleaf firstn 0 type osd&amp;quot;.
+sudo crushtool -c /tmp/crushmap.txt -o /tmp/crushmap.new 
+sudo ceph osd setcrushmap -i /tmp/crushmap.new
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>我難過</title>
+      <link>https://kfei.net/posts/2014/06/%E6%88%91%E9%9B%A3%E9%81%8E/</link>
+      <pubDate>Mon, 09 Jun 2014 10:20:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/%E6%88%91%E9%9B%A3%E9%81%8E/</guid>
+      <description>
+
+&lt;p&gt;今天才知道這一個月前的舊聞.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://au.redhat.com/about/news/press-archive/2014/4/red-hat-to-acquire-inktank-provider-of-ceph&#34; title=&#34;sigh&#34;&gt;邪惡的 Redhat 以 1.75 億美金收購 Inktank&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;懶人包:d32c5c621197137b7c785da124b512ed&#34;&gt;懶人包&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;GlusterFS 作者對此發表了一篇 &lt;a href=&#34;http://pl.atyp.us/2014-04-inktank-acquisition.html&#34;&gt;blog&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Ceph 作者對此發表了一篇 &lt;a href=&#34;http://ceph.com/community/red-hat-to-acquire-inktank/&#34;&gt;blog&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Redhat 的&lt;a href=&#34;http://www.redhat.com/inktank/&#34;&gt;官方聲明&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;聖戰的終結:d32c5c621197137b7c785da124b512ed&#34;&gt;聖戰的終結&lt;/h2&gt;
+
+&lt;p&gt;一直以來, 在眾多分布式儲存系統中最經常被拿來一對一釘孤支的應該就屬 Ceph 和 Gluster 了 (Google: ceph vs gluster 便知). 其中 Gluster 在 2011 年已被邪惡的 Redhat 買下, 而 Ceph (Inktank) 則是背後有陰險的 Ubuntu Canonical 偷偷力挺, 雙方一時瑜亮, 勢同水火.&lt;/p&gt;
+
+&lt;p&gt;就在這種社群/團隊互尬的數年裡, 被嗆不能做 snapshot 的就趕快實作出 snapshot, 被嗆佈署困難的就趕快提供自動佈署工具等等&amp;hellip; 這是使用者獲利的時代!&lt;/p&gt;
+
+&lt;p&gt;直到邪惡的 Redhat 出手將 Inktank 買下.&lt;/p&gt;
+
+&lt;h2 id=&#34;商業-vs-社群:d32c5c621197137b7c785da124b512ed&#34;&gt;商業 vs. 社群&lt;/h2&gt;
+
+&lt;p&gt;這本是一個殘酷的命題.&lt;/p&gt;
+
+&lt;p&gt;新聞出來後, Ceph 社群開發者紛紛表示: &lt;strong&gt;原來我白白為 Redhat 打了這麼多工!&lt;/strong&gt;
+而 Gluster 社群開發者紛紛表示: &lt;strong&gt;(Appear Offline)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;雖然個人不喜歡邪惡的 Redhat (不要問), 但事情總會有好的一面, 至少 Ceph 可以得到更多的開發資源, 更完(ㄒㄧㄝˊ)整( ㄜˋ)的生態系, 更有本錢和 Propietary Solutions 對抗. 而 Gluster &amp;hellip;, 讓我們繼續看下去吧!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

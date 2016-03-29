@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ruby on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/ruby/</link>
+    <description>Recent content in Ruby on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Tue, 25 Mar 2014 06:45:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/ruby/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Scheduler in Sinatra</title>
+      <link>https://kfei.net/posts/2014/03/scheduler-in-sinatra/</link>
+      <pubDate>Tue, 25 Mar 2014 06:45:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/scheduler-in-sinatra/</guid>
+      <description>&lt;p&gt;Sinatra 上有些 webservice 要定時跑, 以前都是用 cron + curl 在做,
+今天發現了一個好用的 gem: &lt;code&gt;rufus-scheduler&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-ruby&#34;&gt;require &#39;rufus/scheduler&#39;
+
+scheduler = Rufus::Scheduler.start_new
+
+scheduler.cron &#39;50 11 * * *&#39; do
+  # do something at 11:50 everyday...
+end
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Switch to rbenv</title>
+      <link>https://kfei.net/posts/2014/03/switch-to-rbenv/</link>
+      <pubDate>Sat, 15 Mar 2014 07:36:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/switch-to-rbenv/</guid>
+      <description>&lt;p&gt;一直對 RVM 的 shell-hacking 行為很感冒也很困擾, 但是沒有了她又勢必崩潰在如滿天星斗的 Ruby 版本中&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;決定從 RVM 轉到 rbenv (早該這麼做了).
+先不管 rbenv 有什麼吸引人的 feature, 至少對比起 RVM 少了一些 dirty (IMO) hacks:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;RVM Need to be loaded into your shell.&lt;/strong&gt; Instead, rbenv&amp;rsquo;s shim approach works by adding a directory to your &lt;code&gt;$PATH&lt;/code&gt;. (這點超討厭!)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RVM Override shell commands like cd or require prompt hacks.&lt;/strong&gt; That&amp;rsquo;s dangerous and error-prone.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RVM Have a configuration file.&lt;/strong&gt; There&amp;rsquo;s nothing to configure except which version of Ruby you want to use.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RVM Install Ruby.&lt;/strong&gt; You can build and install Ruby yourself, or use ruby-build to automate the process. (這個也很煩, Ruby binaries 我想自己管理就好, RVM 似乎有點撈過界&amp;hellip;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RVM Manage gemsets.&lt;/strong&gt; Bundler is a better way to manage application dependencies. If you have projects that are not yet using Bundler you can install the rbenv-gemset plugin. (管理 gemsets 這種事還是交給專業的來吧&amp;hellip;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RVM Require changes to Ruby libraries for compatibility.&lt;/strong&gt; The simplicity of rbenv means as long as it&amp;rsquo;s in your &lt;code&gt;$PATH&lt;/code&gt;, nothing else needs to know about it.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;說了這麼多好像都是在批 RVM, 不過嘛&amp;hellip; 工具這種東西就是這樣, 一定是越來越進步. 如同沒有 CVS, SVN 的難用, 就不會有好用的 Git 誕生一樣, 還是謝謝 RVM 陪伴了多年的時光, 功成身退.&lt;/p&gt;
+
+&lt;p&gt;ps. To uninstall all installed Ruby gems: &lt;code&gt;gem list | cut -d&amp;quot; &amp;quot; -f1 | xargs gem uninstall -aIx&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to protect your Ruby code?</title>
+      <link>https://kfei.net/posts/2013/10/how-to-protect-your-ruby-code/</link>
+      <pubDate>Sat, 19 Oct 2013 09:01:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/how-to-protect-your-ruby-code/</guid>
+      <description>&lt;p&gt;前陣子寫了一包產品部署配置的 Ruby 腳本, 老闆問: &lt;strong&gt;混碼&lt;/strong&gt;了沒?&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;老闆什麼都想混碼!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;於是簡單 survey 了一下確實發現有一些作法, 不過也不太成熟就是了.
+但這整件事 make sense 嗎? Do you really want to marshal a scripting language?
+我覺得還倒不如把 Ruby code 轉成 Brainfuck 算了?&lt;/p&gt;
+
+&lt;p&gt;鬼才看得懂!&lt;/p&gt;
+
+&lt;p&gt;於是再找了一下, 發現真的有像 &lt;a href=&#34;http://esolangs.org/wiki/C2BF&#34;&gt;C2BF&lt;/a&gt; 這樣的 converter, 可以把 C 的原始碼轉換成 Brainfuck code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ${HOME}
+svn co https://c2bf.svn.sourceforge.net/svnroot/brainfuck/c2bf/trunk c2bf
+cd c2bf
+# install bison flex according to your distro.
+YACC=bison make
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;雖然不可能因為這樣就真的把 project 用 C 重寫(原始碼行數至少百倍吧),
+但這個思考方向確實挺有趣的! 有機會可以來試試笑果.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;有離職工程師不爽交接把專案程式碼轉成 Brainfuck 的八卦嗎?&lt;/strong&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

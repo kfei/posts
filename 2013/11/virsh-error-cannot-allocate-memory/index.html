@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" virsh error: Cannot allocate memory &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2013-11-11T13:10:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <meta property="og:article:tag" content="libvirt" />
+    
+    <meta property="og:article:tag" content="qemu" />
+    
+    <meta property="og:article:tag" content="vm" />
+    
+    <meta property="og:article:tag" content="linux" />
+    
+    
+
+  <title>
+     virsh error: Cannot allocate memory &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">virsh error: Cannot allocate memory</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2013-11-11T13:10:00&#43;08:00">
+            Nov 11, 2013
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/libvirt/">#libvirt</a></span>
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/qemu/">#qemu</a></span>
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/vm/">#vm</a></span>
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/linux/">#linux</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>Today I was trying to increase memory size on a qemu-kvm hosted VM. My plan was as simple as shut it down and then change memory setting via <code>virsh edit &lt;VMName&gt;</code>, but both <code>virsh edit</code> and <code>virsh start</code> throws the same error message:</p>
+
+<blockquote>
+<p>error: cannot fork child process: Cannot allocate memory</p>
+</blockquote>
+
+<p>It&rsquo;s weird because <code>free</code> shows me a sufficient amount of memory. But the fact is VM won&rsquo;t boot anymore and even edit its definition file is impossible. Google gives me an answer: <code>sysctl -w vm.overcommit_memory=1</code>, but it doesn&rsquo;t work.</p>
+
+<pre><code># from kernel documentation
+overcommit_memory:
+
+This value contains a flag that enables memory overcommitment.
+
+When this flag is 0, the kernel attempts to estimate the amount
+of free memory left when userspace requests more memory.
+
+When this flag is 1, the kernel pretends there is always enough
+memory until it actually runs out.
+
+When this flag is 2, the kernel uses a &quot;never overcommit&quot;
+policy that attempts to prevent any overcommit of memory.
+Note that user_reserve_kbytes affects this policy.
+
+This feature can be very useful because there are a lot of
+programs that malloc() huge amounts of memory &quot;just-in-case&quot;
+and don't use much of it.
+
+The default value is 0.
+</code></pre>
+
+<p>It does make sense! But seems qemu-kvm runtime parameter doesn&rsquo;t affected by <code>sysctl</code>, so I tried <code>echo 1 &gt; /proc/sys/vm/overcommit_memory</code> and it just works!</p>
+
+<p>Note that there are some useful actions for memory management:</p>
+
+<pre><code class="language-bash"># 3 means release all cache, including pagecache, dentries, inodes
+echo 3 &gt; /proc/sys/vm/drop_caches
+# compact memory such that free memory is available in contiguous blocks
+echo 1 &gt; compact_memory
+</code></pre>
+
+<p>Still confused about why <code>free</code> tells me OK, but <code>virsh start</code> negative?</p>
+
+<p>ref. <a href="https://www.kernel.org/doc/Documentation/sysctl/vm.txt">https://www.kernel.org/doc/Documentation/sysctl/vm.txt</a></p>
+
+<p><strong>Update 20131112</strong>
+Seems legacy libvirtd (in this case 0.12.0) has a memory leak issue under some situations, so <code>/etc/init.d/libvirtd restart</code> may solve this problem better. Upgraded to 1.1.1 and watching&hellip;</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=virsh%20error%3a%20Cannot%20allocate%20memory&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2fvirsh-error-cannot-allocate-memory%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2fvirsh-error-cannot-allocate-memory%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2fvirsh-error-cannot-allocate-memory%2f&amp;description=virsh%20error%3a%20Cannot%20allocate%20memory"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2fvirsh-error-cannot-allocate-memory%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

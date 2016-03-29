@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Docker: 使用 s6 作為多服務容器的啟動管理程序 &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2014/12/docker-%E4%BD%BF%E7%94%A8-s6-%E4%BD%9C%E7%82%BA%E5%A4%9A%E6%9C%8D%E5%8B%99%E5%AE%B9%E5%99%A8%E7%9A%84%E5%95%9F%E5%8B%95%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2014-12-06T16:58:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <meta property="og:article:tag" content="docker" />
+    
+    <meta property="og:article:tag" content="s6" />
+    
+    
+
+  <title>
+     Docker: 使用 s6 作為多服務容器的啟動管理程序 &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2014/12/docker-%E4%BD%BF%E7%94%A8-s6-%E4%BD%9C%E7%82%BA%E5%A4%9A%E6%9C%8D%E5%8B%99%E5%AE%B9%E5%99%A8%E7%9A%84%E5%95%9F%E5%8B%95%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Docker: 使用 s6 作為多服務容器的啟動管理程序</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2014-12-06T16:58:00&#43;08:00">
+            Dec 6, 2014
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/docker/">#docker</a></span>
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/s6/">#s6</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<h2 id="前言:8ac442f540b3d692a677bf03e4d50441">前言</h2>
+
+<p>最近在打包 <a href="https://github.com/kfei/docktorrent">docktorrent</a> 的過程中，遇到了在 container 裡多服務的啟動和管理問題，包含 process init，signal handle，monitor，orphan reaping 等等。把 init process 的 survey 心得及最後決定的 image 架構記錄一下，有錯請指正。</p>
+
+<h2 id="在一個容器裡跑多個服務-你確定:8ac442f540b3d692a677bf03e4d50441">在一個容器裡跑多個服務？你確定？</h2>
+
+<p>雖然 Docker 官方總是建議一個 container 只跑一個特定服務，然而在很多情況下，將幾個高度耦合的服務封裝在同一個 container 中一起跑也是很乾脆的做法，相對於內建難用的 linking 或透過 fig 管理多 container，有時候還方便的多。</p>
+
+<p>聽聽 <a href="http://phusion.github.io/baseimage-docker/">Phusion</a> 對於這個問題是怎麼說的：</p>
+
+<blockquote>
+<p>&ldquo;But I thought Docker is about running a single process in a container?&rdquo;</p>
+
+<p>Absolutely not true. Docker runs fine with multiple processes in a container. In fact, there is no technical reason why you should limit yourself to one process – it only makes things harder for you and breaks all kinds of essential system functionality, e.g. syslog.</p>
+
+<p><strong>We encourage you to use multiple processes.</strong></p>
+</blockquote>
+
+<h2 id="沒有-init-process-會怎樣:8ac442f540b3d692a677bf03e4d50441">沒有 init process 會怎樣？</h2>
+
+<p>然而，一旦跑了多個 process，誰當老大（PID = 1）就會是個很重要的問題。在 docktorrent 一開始的打包方法中，我的 entrypoint 腳本大概是像這樣：</p>
+
+<pre><code># Start satellite services
+/etc/init.d/nginx start
+/etc/init.d/php5-fpm start
+
+# Turn to rTorrent
+exec rtorrent
+</code></pre>
+
+<p>也就是說把 nginx 和 php5-fpm 跑起來後，執行 rTorrent 並且把 PID 1 交給他。會讓 rTorrent 作為 PID 1 的原因在於 <code>docker stop</code> 只會把 SIGTERM 送給 container 中的 PID 1 process，而 rTorrent 是整個 container 中唯一需要 graceful shutdown 的，所以讓他去接 signal。但這種做法馬上就會發現 <code>ps -ef</code> 出現一大堆 <code>[php] &lt;defunct&gt;</code> process，或許這是那些 PHP process 自己的問題，但作為 PID 1 的 rTorrent 不能好好回收這些孤兒，似乎也不太理想。一般來說，作為系統頭號 process 應該要負幾個基本責任：</p>
+
+<ol>
+<li>依序啟動所有該啟動的服務（process）然後常駐背景</li>
+<li>在系統終止時正常關閉（graceful shutdown）這些服務</li>
+<li>隨時回收系統上所有無主孤魂（orphan process）</li>
+<li>可以 respawn 異常掛掉的服務</li>
+</ol>
+
+<p>因此就有必要找個（或者自幹一個）專職的 PID 1，也就是 <a href="https://en.wikipedia.org/wiki/Init">init</a> 程序來作為 container 執行時的入口。當然，考慮到最後的 image 要盡量精簡，像 Upstart，Systemd 或是 OpenRC 這種重型的方案在 container 環境就暫且先不考慮了。</p>
+
+<h2 id="supervisord:8ac442f540b3d692a677bf03e4d50441">Supervisord</h2>
+
+<p>於是首先看看 Docker <a href="https://docs.docker.com/articles/using_supervisord/">官方推薦</a> 的 <a href="http://supervisord.org/">Supervisord</a>，透過設定檔來配置服務的方式，試用了一下發現還算簡單易用，一個 <code>supervisord.conf</code> 的內容大概是這樣寫：</p>
+
+<pre><code>[supervisord]
+nodaemon=true
+
+[program:sshd]
+command=/usr/sbin/sshd -D
+
+[program:apache2]
+command=/bin/bash -c &quot;source /etc/apache2/envvars &amp;&amp; /usr/sbin/apache2 -DFOREGROUND&quot;
+</code></pre>
+
+<p>可惜 Supervisord 的設計並不是用來作為 init process 使用的，這在其首頁上已有宣告：</p>
+
+<blockquote>
+<p>It shares some of the same goals of programs like launchd, daemontools, and runit. Unlike some of these programs, it is not meant to be run as a substitute for init as “process id 1”. Instead it is meant to be used to control processes related to a project or a customer, and is meant to start like any other program at boot time.</p>
+</blockquote>
+
+<p>經過測試，Supervisord 在接收到 <code>docker stop</code> 送來的 SIGTERM 時，會把訊號轉送給其他 process，等待所有服務 graceful shutdown。然而，孤兒 processes 的問題也確實沒有解決，整個 container 還是充滿 zombie。再說 Supervisord 是 Python 寫成的，要是疊加在 <code>debian:jessie</code> 上足足要增加 45MB 的 image size，加上 Python 在執行階段的成本，僅僅為了跑多服務似乎不大划算。</p>
+
+<h2 id="runit:8ac442f540b3d692a677bf03e4d50441">Runit</h2>
+
+<p>下一位，<a href="http://smarden.org/runit/">Runit</a>。Written in C，足夠輕量，疊加在 <code>debian:jessie</code> 上只增加約 10MB 大小，貌似不錯。知名的 Phusion baseimage 系列也使用 Runit（不過只是用來做服務啟動和 supervision，對於 init process 他們自己寫了一隻叫 <code>my_init</code> 的 Python 小程式）。</p>
+
+<p><code>/usr/bin/runsvdir -P /etc/sv</code> 是 Runit 掃描並啟動服務的方式，其中 <code>/etc/sv</code> 是符合 Runit <a href="http://smarden.org/runit/faq.html#create">規定格式</a>的 service directory。舉例來說在 <code>phusion/baseimage</code> 裡的目錄結構是這樣：</p>
+
+<pre><code># tree /etc/service
+/etc/service
+|-- cron
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       |-- ok
+|       |-- pid
+|       |-- stat
+|       `-- status
+|-- sshd
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       |-- ok
+|       |-- pid
+|       |-- stat
+|       `-- status
+`-- syslog-ng
+    |-- run
+    `-- supervise
+        |-- control
+        |-- lock
+        |-- ok
+        |-- pid
+        |-- stat
+        `-- status
+</code></pre>
+
+<p>掃到服務之後 <code>runsvdir</code> 會將服務交由另一隻 <code>runsv</code> 去啟動並監管（supervise）。看起來也算簡單明瞭，但可惜的是 <code>runsvdir</code> 並不適合直接作為 PID 1 使用，原因是他不做訊號轉送，因此 <code>docker stop</code> 會導致 container 裡所有服務直接終結。</p>
+
+<p>Runit 裡真正負責 PID 1 的是另一隻叫 <code>runit-init</code> 的程式，<code>runit-init</code> 啟動之後會把自己替換為 <code>runit</code>，然後再叫出 <code>runsvdir</code>，於是整個 process tree 大概就會變這樣：</p>
+
+<pre><code>runit ─── runsvdir ─┬─ runsv syslog-ng ─── syslog-ng -F
+      	            ├─ runsv sshd ─── /usr/sbin/sshd -D
+                    ├─ runsv crond ─── /usr/sbin/crond -f
+</code></pre>
+
+<p>除了 process tree 深度增加一層不太爽之外，<code>runit-init</code> 還另外引進了 run level 的問題，同樣的，只是為了在 container 裡多跑幾個服務要搞這麼多東西似乎有點小題大做了。</p>
+
+<h2 id="s6:8ac442f540b3d692a677bf03e4d50441">s6</h2>
+
+<p>終於來到今天的主角了。</p>
+
+<p><a href="http://skarnet.org/software/s6/index.html">s6</a>，Written in C，所有 binary 加起來不到 900KB，非常輕量（也非常冷門）。主要有兩隻程式在工作：<code>s6-svscan</code> 作為 PID 1 掃描所有服務並交由 <code>s6-supervise</code> 實際啟動並接管。</p>
+
+<p>關於 <code>s6-svscan</code> 的幾件事：
+  - 收到 <code>docker stop</code> 送進來的 SIGTERM 後，轉送給所有 <code>s6-supervise</code> process 後接著執行 <code>.s6-svscan/finish</code>，如果執行過程中 fail 掉就改跑 <code>.s6-svscan/crash</code>。
+  - service directory 裡每個 service 可以有三個可執行檔：run/finish/crash，顧名思義簡單易用。
+  - 支援特殊 logger service，透過新建名為 <code>log</code> 的 service directory 可以自定義 logger。
+  - 會一直在背景默默的持續 scan 目錄並回收系統裡的 orphan。</p>
+
+<p>關於 <code>s6-supervise</code> 的幾件事：
+  - 會先切換到服務的 service directory，接著預設執行 <code>./run</code>。
+  - <code>./run</code> 跑完了如果目錄裡存在 <code>./finish</code> 就執行。
+  - <code>./finish</code> 如果在五秒內沒有退出，會直接被 kill 掉，然後再回頭執行 <code>./run</code>（這個行為可以自己控制）。</p>
+
+<p>我的 service directory 結構長這樣：</p>
+
+<pre><code># tree /service
+/service
+|-- nginx
+|   |-- event
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       `-- status
+|-- php5-fpm
+|   |-- event
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       `-- status
+`-- rtorrent
+    |-- event
+    |-- finish
+    |-- run
+    `-- supervise
+        |-- control
+        |-- lock
+        `-- status
+</code></pre>
+
+<p>試用過後發現 init process 四個基本需求都有滿足，也夠簡單。但是發現另一個問題：<code>s6-svscan</code> 把 SIGTERM 送給 <code>s6-supervise</code> 後馬上就退出了，導致 <code>s6-supervise</code> 管轄的服務根本沒時間 graceful shutdown，這樣子 SIGTERM 有送豈不等於沒送？當然了，在 <code>.s6-svscan/finish</code> 裡加一段 sleep 可以 work around，但這樣搞實在不太科學。後來才知道 s6 裡有一隻叫 <code>s6-svwait</code> 的 user interface 可以用來等待特定或所有服務，於是在 <code>.s6-svscan/finish</code> 加上一段等待主要服務結束的指令：<code>exec s6-svwait -d /service/rtorrent</code>，這個問題算是解決。</p>
+
+<p>到此，一個輕量又簡單易用的 init process 解決方案就有了。</p>
+
+<h2 id="取得-s6-的-static-binaries:8ac442f540b3d692a677bf03e4d50441">取得 s6 的 static binaries</h2>
+
+<p>參考網路上找到的<a href="https://github.com/jprjr/docker-misc/blob/s6-builder/dockerfiles/arch-s6-builder/build.sh">做法</a>，先 build 一個基於 Arch 的 utility image 提供 s6 編譯環境，然後在其他要用到 s6 的 image repository 直接取用編好的 binary <a href="https://github.com/kfei/s6-builder/blob/master/dist/s6-1.1.3.2-musl-static.tar.xz?raw=true">tar ball</a>。具體用法可以參考我的 GitHub <a href="https://github.com/kfei/s6-builder">repo</a>，或者直接把 binary 抓去試試也行。</p>
+
+<h2 id="寫在後面:8ac442f540b3d692a677bf03e4d50441">寫在後面</h2>
+
+<ul>
+<li>s6 似乎沒有處理啟動順序相依性的框架，如果需要可能要自己用 hook 的方法 work around。但話說回來，在 container 裡跑多服務跑到出現複雜的啟動相依性，好像也有點怪怪的（container VM 化？）。不過如果真的要這樣搞，那你需要的應該是更完整（肥）的 init process。</li>
+<li>如果只是要處理 signal forward 讓服務可以 graceful shutdown，則完全沒有必要引入 init process，透過一隻 Bash wrapper 加幾行 trap/wait 就可以辦到，強者我同事 <a href="https://github.com/tsaikd">Bash 狂人</a> 就是這樣搞的。</li>
+<li>Survey 的過程中發現<a href="http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/">有人</a>遇到一樣的問題，然後寫了一個叫 <a href="https://github.com/chazomaticus/minit">minit</a> 的輕量 init process，看起來也還不錯，但我沒有試，如果你有使用心得歡迎分享。</li>
+</ul>
+
+<h2 id="references:8ac442f540b3d692a677bf03e4d50441">References</h2>
+
+<ul>
+<li><a href="http://phusion.github.io/baseimage-docker/">http://phusion.github.io/baseimage-docker/</a></li>
+<li><a href="http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/">http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/</a></li>
+<li><a href="http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/">http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/</a></li>
+</ul>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Docker%3a%20%e4%bd%bf%e7%94%a8%20s6%20%e4%bd%9c%e7%82%ba%e5%a4%9a%e6%9c%8d%e5%8b%99%e5%ae%b9%e5%99%a8%e7%9a%84%e5%95%9f%e5%8b%95%e7%ae%a1%e7%90%86%e7%a8%8b%e5%ba%8f&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f12%2fdocker-%25E4%25BD%25BF%25E7%2594%25A8-s6-%25E4%25BD%259C%25E7%2582%25BA%25E5%25A4%259A%25E6%259C%258D%25E5%258B%2599%25E5%25AE%25B9%25E5%2599%25A8%25E7%259A%2584%25E5%2595%259F%25E5%258B%2595%25E7%25AE%25A1%25E7%2590%2586%25E7%25A8%258B%25E5%25BA%258F%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2014%2f12%2fdocker-%25E4%25BD%25BF%25E7%2594%25A8-s6-%25E4%25BD%259C%25E7%2582%25BA%25E5%25A4%259A%25E6%259C%258D%25E5%258B%2599%25E5%25AE%25B9%25E5%2599%25A8%25E7%259A%2584%25E5%2595%259F%25E5%258B%2595%25E7%25AE%25A1%25E7%2590%2586%25E7%25A8%258B%25E5%25BA%258F%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f12%2fdocker-%25E4%25BD%25BF%25E7%2594%25A8-s6-%25E4%25BD%259C%25E7%2582%25BA%25E5%25A4%259A%25E6%259C%258D%25E5%258B%2599%25E5%25AE%25B9%25E5%2599%25A8%25E7%259A%2584%25E5%2595%259F%25E5%258B%2595%25E7%25AE%25A1%25E7%2590%2586%25E7%25A8%258B%25E5%25BA%258F%2f&amp;description=Docker%3a%20%e4%bd%bf%e7%94%a8%20s6%20%e4%bd%9c%e7%82%ba%e5%a4%9a%e6%9c%8d%e5%8b%99%e5%ae%b9%e5%99%a8%e7%9a%84%e5%95%9f%e5%8b%95%e7%ae%a1%e7%90%86%e7%a8%8b%e5%ba%8f"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f12%2fdocker-%25E4%25BD%25BF%25E7%2594%25A8-s6-%25E4%25BD%259C%25E7%2582%25BA%25E5%25A4%259A%25E6%259C%258D%25E5%258B%2599%25E5%25AE%25B9%25E5%2599%25A8%25E7%259A%2584%25E5%2595%259F%25E5%258B%2595%25E7%25AE%25A1%25E7%2590%2586%25E7%25A8%258B%25E5%25BA%258F%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

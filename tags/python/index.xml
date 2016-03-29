@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/python/</link>
+    <description>Recent content in Python on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Wed, 04 Jun 2014 08:19:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>4 ways to put the version number into setup.py for your Python package</title>
+      <link>https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/</link>
+      <pubDate>Wed, 04 Jun 2014 08:19:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/</guid>
+      <description>&lt;p&gt;Assume that we&amp;rsquo;re developing a Python package &lt;strong&gt;pypkg&lt;/strong&gt; with a directory structure like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pypkg
+  |+++- pypkg/
+  |       |+++- __init__.py
+  |
+  |+++- setup.py
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And we have a statement &lt;code&gt;__version__ = &#39;5.5.6.6&#39;&lt;/code&gt; in &lt;code&gt;pypkg/__init__.py&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So the first way will be just import the module &lt;code&gt;pypkg&lt;/code&gt; and then call &lt;code&gt;pypkg.__version__&lt;/code&gt; in the &lt;em&gt;setup&lt;/em&gt; block in &lt;code&gt;setup.py&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+import pypkg
+... (skipped)
+setup(
+	version = pypkg.__version__
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But sometimes we don&amp;rsquo;t want to import the module, so we can setup a regex to match version statement in &lt;code&gt;__init__.py&lt;/code&gt;, and just search that file for a match:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+def get_version():
+    VERSIONFILE = os.path.join(&#39;pypkg&#39;, &#39;__init__.py&#39;)
+    initfile_lines = open(VERSIONFILE, &#39;rt&#39;).readlines()
+    VSRE = r&amp;quot;^__version__ = [&#39;\&amp;quot;]([^&#39;\&amp;quot;]*)[&#39;\&amp;quot;]&amp;quot;
+    for line in initfile_lines:
+        mo = re.search(VSRE, line, re.M)
+        if mo:
+            return mo.group(1)
+    raise RuntimeError(&#39;Unable to find version string in %s.&#39; % (VERSIONFILE,))
+# ... (skipped)
+setup(
+	version = get_version()
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we want to get all metadatas (e.g. author) not just the version number, we can do it in the same way:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+module_file = open(&amp;quot;pypkg/__init__.py&amp;quot;).read()
+metadata = dict(re.findall(&amp;quot;__([a-z]+)__\s*=\s*&#39;([^&#39;]+)&#39;&amp;quot;, module_file))
+# ... (skipped)
+setup(
+	author = metadata[&#39;author&#39;]
+	version = metadata[&#39;version&#39;]
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we may want to separates the metadata from &lt;code&gt;pypkg/__init__.py&lt;/code&gt;, say we put the statement &lt;code&gt;__version__ = &#39;5.5.6.6&#39;&lt;/code&gt; into another file &lt;code&gt;pypkg/version.py&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+exec(compile(open(&#39;pypkg/version.py&#39;).read(), &#39;pypkg/version.py&#39;, &#39;exec&#39;))
+# ... (skipped)
+setup(
+	version = __version__
+)
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

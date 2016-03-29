@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" kernel? ubuntu? kvm? &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2013/10/kernel-ubuntu-kvm/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2013-10-24T11:28:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    
+
+  <title>
+     kernel? ubuntu? kvm? &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2013/10/kernel-ubuntu-kvm/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">kernel? ubuntu? kvm?</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2013-10-24T11:28:00&#43;08:00">
+            Oct 24, 2013
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>不知道是誰的 bug, 新裝的 3.5.0-23-generic Kernel (Ubuntu),
+在 remote 做 mongoimport 時會噴出錯誤, 即使換成 ext4 也一樣:</p>
+
+<pre><code>[656289.998839] ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
+[656289.998910] ata1.00: failed command: WRITE DMA EXT
+[656289.998953] ata1.00: cmd 35/00:f8:f0:5c:45/00:03:02:00:00/e0 tag 0 dma 520192 out
+[656289.998953]          res 40/00:01:00:00:00/00:00:00:00:00/e0 Emask 0x4 (timeout)
+[656289.999065] ata1.00: status: { DRDY }
+[656289.999226] ata1: soft resetting link
+[656290.152502] ata1.01: NODEV after polling detection
+[656290.153668] ata1.00: configured for MWDMA2
+[656290.153683] ata1.00: device reported invalid CHS sector 0
+[656290.153734] sd 0:0:0:0: [sda]  
+[656290.153737] Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[656290.153740] sd 0:0:0:0: [sda]  
+[656290.153742] Sense Key : Aborted Command [current] [descriptor]
+[656290.153747] Descriptor sense data with sense descriptors (in hex):
+[656290.153749]         72 0b 00 00 00 00 00 0c 00 0a 80 00 00 00 00 00 
+[656290.153759]         00 00 00 00 
+[656290.153764] sd 0:0:0:0: [sda]  
+[656290.153767] Add. Sense: No additional sense information
+[656290.153769] sd 0:0:0:0: [sda] CDB: 
+[656290.153771] Write(10): 2a 00 02 45 5c f0 00 03 f8 00
+[656290.153780] end_request: I/O error, dev sda, sector 38100208
+[656290.153863] Buffer I/O error on device dm-2, logical block 1646
+[656290.153927] lost page write due to I/O error on dm-2
+[656290.153968] Buffer I/O error on device dm-2, logical block 1647
+[656290.154032] lost page write due to I/O error on dm-2
+[656290.154060] Buffer I/O error on device dm-2, logical block 1648
+[656290.154125] lost page write due to I/O error on dm-2
+[656290.154151] Buffer I/O error on device dm-2, logical block 1649
+[656290.154227] lost page write due to I/O error on dm-2
+[656290.154254] Buffer I/O error on device dm-2, logical block 1650
+[656290.154319] lost page write due to I/O error on dm-2
+[656290.154323] Buffer I/O error on device dm-2, logical block 1651
+[656290.154387] lost page write due to I/O error on dm-2
+[656290.154414] Buffer I/O error on device dm-2, logical block 1652
+[656290.154481] lost page write due to I/O error on dm-2
+[656290.154509] Buffer I/O error on device dm-2, logical block 1653
+[656290.154574] lost page write due to I/O error on dm-2
+[656290.154600] Buffer I/O error on device dm-2, logical block 1654
+[656290.154663] lost page write due to I/O error on dm-2
+[656290.154689] Buffer I/O error on device dm-2, logical block 1655
+[656290.154753] lost page write due to I/O error on dm-2
+[656290.155099] ata1: EH complete
+[656290.155121] REISERFS abort (device dm-2): Journal write error in flush_commit_list
+</code></pre>
+
+<p>依經驗, 要是 file system seek 沒有 bad sector, 通常換條排線就沒事了.
+但這是 VM 阿! 不知道是 kernel/ubuntu/kvm 誰的問題, 總之把 NCQ 取消掉就正常了.</p>
+
+<pre><code>GRUB_CMDLINE_LINUX=&quot;libata.force=noncq&quot;
+</code></pre>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=kernel%3f%20ubuntu%3f%20kvm%3f&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2fkernel-ubuntu-kvm%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2fkernel-ubuntu-kvm%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2fkernel-ubuntu-kvm%2f&amp;description=kernel%3f%20ubuntu%3f%20kvm%3f"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f10%2fkernel-ubuntu-kvm%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

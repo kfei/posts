@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sinatra on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/sinatra/</link>
+    <description>Recent content in Sinatra on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Tue, 25 Mar 2014 06:45:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/sinatra/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Scheduler in Sinatra</title>
+      <link>https://kfei.net/posts/2014/03/scheduler-in-sinatra/</link>
+      <pubDate>Tue, 25 Mar 2014 06:45:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/scheduler-in-sinatra/</guid>
+      <description>&lt;p&gt;Sinatra 上有些 webservice 要定時跑, 以前都是用 cron + curl 在做,
+今天發現了一個好用的 gem: &lt;code&gt;rufus-scheduler&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-ruby&#34;&gt;require &#39;rufus/scheduler&#39;
+
+scheduler = Rufus::Scheduler.start_new
+
+scheduler.cron &#39;50 11 * * *&#39; do
+  # do something at 11:50 everyday...
+end
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

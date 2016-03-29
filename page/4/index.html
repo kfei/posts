@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+    <meta property="og:type" content="website" />
+    
+
+  <title>
+     kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+      
+        <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened nav-current" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+<header class="main-header " style="background-image: url(https://kfei.net/posts/images/cover_milkr.jpg)">
+
+
+    <nav class="main-nav overlay clearfix">
+        
+        
+            <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+        
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
+            
+            
+                <a class="bloglogo" href="https://github.com/kfei" target="_blank">
+                    <span class="icon-github"></span>
+                </a>
+            &nbsp;
+            
+            
+                <a class="bloglogo" href="https://twitter.com/linkfei" target="_blank">
+                    <span class="icon-twitter"></span>
+                </a>
+            &nbsp;
+            
+            
+                <a class="bloglogo" href="https://www.facebook.com/g8.kfei" target="_blank">
+                    <span class="icon-facebook"></span>
+                </a>
+            &nbsp;
+            
+            
+            
+            
+
+            <h1 class="page-title">kfei&#39;s brainfuck</h1>
+            <h2 class="page-description">To dream and to build. To fail and to succeed.</h2>
+        </div>
+    </div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
+
+
+<main id="content" class="content" role="main">
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    
+        
+            
+        
+    
+
+    
+    
+    
+
+    <div class="extra-pagination inner">
+        <nav class="pagination" role="navigation">
+	
+	    <a class="newer-posts" href="https://kfei.net/posts/page/3/">&larr; Newer Posts</a>
+	
+	<span class="page-number">Page 4 of 6</span>
+	
+	    <a class="older-posts" href="https://kfei.net/posts/page/5/">Older Posts &rarr;</a>
+	
+</nav>
+
+    </div>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/11/more-remotes-for-a-git-repo/">More remotes for a GIT repo</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p><p>We know we can add some other remotes and its url after an initial <code>git remote
+add origin</code>, and one more trick is that we can do some group aliases such as:</p>
+
+<pre><code># &lt;repo&gt;/.git/config
+[remote &quot;mars&quot;]
+        url = &lt;url-mars&gt;
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[remote &quot;origin&quot;]
+        url = &lt;url-origin&gt;
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[remote &quot;all&quot;]
+        url = &lt;url-mars&gt;
+        url = &lt;url-origin&gt;
+</code></pre>
+ <a class="read-more" href="https://kfei.net/posts/2013/11/more-remotes-for-a-git-repo/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/git/">#git</a>,
+            
+        
+        <time class="post-date" datetime="2013-11-07T06:05:00&#43;08:00">
+            7 Nov 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/11/how-to-make-awesome-diagrams-for-your-slides/">How to make Awesome Diagrams for your slides</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p>ref: http://www.slideshare.net/otikik/how-to-make-awesome-diagrams-for-your-slides <a class="read-more" href="https://kfei.net/posts/2013/11/how-to-make-awesome-diagrams-for-your-slides/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+        <time class="post-date" datetime="2013-11-05T07:14:00&#43;08:00">
+            5 Nov 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">名言啟示</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p><blockquote>
+<p>井蛙不可語於海者，拘於虛也。
+夏蟲不可語於冰者，篤於時也。
+曲士不可語於道者，束於教也。
+今爾出於崖涘，觀於大海，將可語大理矣。</p>
+
+<p>莊子，《秋水篇》</p>
+</blockquote>
+ <a class="read-more" href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/quotes/">#quotes</a>,
+            
+        
+        <time class="post-date" datetime="2013-10-31T10:05:00&#43;08:00">
+            31 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/">好奇殺死一隻貓</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p>除了不要亂點來路不明的連結外, 來路不明的 shell script 當然也不可以隨便執行哦! char rmrf[] __attribute__ ((section(“.text”))) = “\xeb\x3e\x5 <a class="read-more" href="https://kfei.net/posts/2013/10/%E5%A5%BD%E5%A5%87%E6%AE%BA%E6%AD%BB%E4%B8%80%E9%9A%BB%E8%B2%93/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/geek/">#geek</a>,
+            
+        
+        <time class="post-date" datetime="2013-10-29T02:12:00&#43;08:00">
+            29 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/my-10-unix-command-line-mistakes/">My 10 UNIX Command Line Mistakes</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p><p>致命的指令失誤是每個 linuxer 成長過程中必定有過的經驗, 誰也免不了.</p>
+
+<p>別不信邪, 即使是 Gentoo Portage 的 official ebuild,
+也曾經出現過 <code>rm -rf /lalala</code> 誤寫為 <code>rm -rf / lalala</code> ,
+造成使用者更新套件後系統全毀的慘劇&hellip;</p>
+ <a class="read-more" href="https://kfei.net/posts/2013/10/my-10-unix-command-line-mistakes/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/linux/">#linux</a>,
+            
+        
+        <time class="post-date" datetime="2013-10-25T03:01:00&#43;08:00">
+            25 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/%E6%A0%B9%E6%9C%AC%E7%A5%9E%E4%BA%BA/">根本神人</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p>copy&rsquo;s home <a class="read-more" href="https://kfei.net/posts/2013/10/%E6%A0%B9%E6%9C%AC%E7%A5%9E%E4%BA%BA/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+        <time class="post-date" datetime="2013-10-25T02:49:00&#43;08:00">
+            25 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">名言啟示</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p>Programming is Gardening, not Engineering. – A Conversation with Andy Hunt and Dave Thomas, Part VII, by Bill Venners <a class="read-more" href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+        <time class="post-date" datetime="2013-10-25T02:32:00&#43;08:00">
+            25 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/kernel-ubuntu-kvm/">kernel? ubuntu? kvm?</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p>不知道是誰的 bug, 新裝的 3.5.0-23-generic Kernel (Ubuntu), 在 remote 做 mongoimport 時會噴出錯誤, 即使換成 ext4 也一樣: [656289.998839] ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen [656289.998910] ata1.00: failed command: WRITE DMA EXT [656289.998953] ata1.00: cmd 35/00:f8:f0:5c:45/00:03:02:00:00/e0 tag 0 dma 520192 out [656289.998953] res 40/00:01:00:00:00/00:00:00:00:00/e0 Emask 0x4 (timeout) [656289.999065] ata1.00: status: <a class="read-more" href="https://kfei.net/posts/2013/10/kernel-ubuntu-kvm/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+        <time class="post-date" datetime="2013-10-24T11:28:00&#43;08:00">
+            24 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">名言啟示</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p><p><img src="http://user-image.logdown.io/user/4546/blog/4576/post/154147/20flOgT5Rhe9qM2Cczqp_albert-einstein-04.jpg" alt="Albert Einstein" /></p>
+
+<blockquote>
+<p>We cannot solve our problems with the same thinking we used when we created them.</p>
+</blockquote>
+ <a class="read-more" href="https://kfei.net/posts/2013/10/%E5%90%8D%E8%A8%80%E5%95%9F%E7%A4%BA/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/quotes/">#quotes</a>,
+            
+        
+        <time class="post-date" datetime="2013-10-24T09:57:00&#43;08:00">
+            24 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+        
+<article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/">Directly access the file system inside a VM disk image</a></h2>
+    </header>
+    <section class="post-excerpt">
+        <p><p>Consider a situation that you want to change some settings i.e. edit some files
+in VM, it&rsquo;ll be nice if you don&rsquo;t have to boot it up then log in to make some
+changes. So the question becomes how to access the file system inside the VM
+disk image file?</p>
+ <a class="read-more" href="https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/">&raquo;</a></p>
+    </section>
+    <footer class="post-meta">
+        
+            
+                <a href="https://kfei.net/posts/tags/linux/">#linux</a>,
+            
+                <a href="https://kfei.net/posts/tags/vm/">#vm</a>,
+            
+        
+        <time class="post-date" datetime="2013-10-23T08:40:00&#43;08:00">
+            23 Oct 2013
+        </time>
+    </footer>
+</article>
+
+    
+
+    <nav class="pagination" role="navigation">
+	
+	    <a class="newer-posts" href="https://kfei.net/posts/page/3/">&larr; Newer Posts</a>
+	
+	<span class="page-number">Page 4 of 6</span>
+	
+	    <a class="older-posts" href="https://kfei.net/posts/page/5/">Older Posts &rarr;</a>
+	
+</nav>
+
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

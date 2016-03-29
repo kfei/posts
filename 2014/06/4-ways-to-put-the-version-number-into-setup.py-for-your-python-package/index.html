@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 4 ways to put the version number into setup.py for your Python package &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2014-06-04T08:19:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <meta property="og:article:tag" content="python" />
+    
+    
+
+  <title>
+     4 ways to put the version number into setup.py for your Python package &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">4 ways to put the version number into setup.py for your Python package</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2014-06-04T08:19:00&#43;08:00">
+            Jun 4, 2014
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/python/">#python</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>Assume that we&rsquo;re developing a Python package <strong>pypkg</strong> with a directory structure like this:</p>
+
+<pre><code>pypkg
+  |+++- pypkg/
+  |       |+++- __init__.py
+  |
+  |+++- setup.py
+</code></pre>
+
+<p>And we have a statement <code>__version__ = '5.5.6.6'</code> in <code>pypkg/__init__.py</code>.</p>
+
+<p>So the first way will be just import the module <code>pypkg</code> and then call <code>pypkg.__version__</code> in the <em>setup</em> block in <code>setup.py</code>:</p>
+
+<pre><code class="language-python"># In setup.py
+import pypkg
+... (skipped)
+setup(
+	version = pypkg.__version__
+)
+</code></pre>
+
+<p>But sometimes we don&rsquo;t want to import the module, so we can setup a regex to match version statement in <code>__init__.py</code>, and just search that file for a match:</p>
+
+<pre><code class="language-python"># In setup.py
+def get_version():
+    VERSIONFILE = os.path.join('pypkg', '__init__.py')
+    initfile_lines = open(VERSIONFILE, 'rt').readlines()
+    VSRE = r&quot;^__version__ = ['\&quot;]([^'\&quot;]*)['\&quot;]&quot;
+    for line in initfile_lines:
+        mo = re.search(VSRE, line, re.M)
+        if mo:
+            return mo.group(1)
+    raise RuntimeError('Unable to find version string in %s.' % (VERSIONFILE,))
+# ... (skipped)
+setup(
+	version = get_version()
+)
+</code></pre>
+
+<p>If we want to get all metadatas (e.g. author) not just the version number, we can do it in the same way:</p>
+
+<pre><code class="language-python"># In setup.py
+module_file = open(&quot;pypkg/__init__.py&quot;).read()
+metadata = dict(re.findall(&quot;__([a-z]+)__\s*=\s*'([^']+)'&quot;, module_file))
+# ... (skipped)
+setup(
+	author = metadata['author']
+	version = metadata['version']
+)
+</code></pre>
+
+<p>Now we may want to separates the metadata from <code>pypkg/__init__.py</code>, say we put the statement <code>__version__ = '5.5.6.6'</code> into another file <code>pypkg/version.py</code>:</p>
+
+<pre><code class="language-python"># In setup.py
+exec(compile(open('pypkg/version.py').read(), 'pypkg/version.py', 'exec'))
+# ... (skipped)
+setup(
+	version = __version__
+)
+</code></pre>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=4%20ways%20to%20put%20the%20version%20number%20into%20setup.py%20for%20your%20Python%20package&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f06%2f4-ways-to-put-the-version-number-into-setup.py-for-your-python-package%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2014%2f06%2f4-ways-to-put-the-version-number-into-setup.py-for-your-python-package%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f06%2f4-ways-to-put-the-version-number-into-setup.py-for-your-python-package%2f&amp;description=4%20ways%20to%20put%20the%20version%20number%20into%20setup.py%20for%20your%20Python%20package"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2014%2f06%2f4-ways-to-put-the-version-number-into-setup.py-for-your-python-package%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

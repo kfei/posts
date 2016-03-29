@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Java on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/java/</link>
+    <description>Recent content in Java on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Mon, 02 Dec 2013 23:13:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Timeout Best Practice in Java</title>
+      <link>https://kfei.net/posts/2013/12/timeout-best-practice-in-java/</link>
+      <pubDate>Mon, 02 Dec 2013 23:13:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/12/timeout-best-practice-in-java/</guid>
+      <description>&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;package com.stackoverflow.q2275443;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future&amp;lt;String&amp;gt; future = executor.submit(new Task());
+
+        try {
+            System.out.println(&amp;quot;Started..&amp;quot;);
+            System.out.println(future.get(3, TimeUnit.SECONDS));
+            System.out.println(&amp;quot;Finished!&amp;quot;);
+        } catch (TimeoutException e) {
+            System.out.println(&amp;quot;Terminated!&amp;quot;);
+        }
+
+        executor.shutdownNow();
+    }
+}
+
+class Task implements Callable&amp;lt;String&amp;gt; {
+    @Override
+    public String call() throws Exception {
+        Thread.sleep(4000); // Just to demo a long running task of 4 seconds.
+        return &amp;quot;Ready!&amp;quot;;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;http://stackoverflow.com/a/2275596&#34;&gt;http://stackoverflow.com/a/2275596&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ArrayList and LinkedList in Java</title>
+      <link>https://kfei.net/posts/2013/12/arraylist-and-linkedlist-in-java/</link>
+      <pubDate>Mon, 02 Dec 2013 09:29:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/12/arraylist-and-linkedlist-in-java/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/a/322742&#34;&gt;http://stackoverflow.com/a/322742&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;接手的專案裡幾乎全部類似 list 型別的物件不分青紅皂白都用 ArrayList 著實使人困擾&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The query builder in MongoDB Java driver</title>
+      <link>https://kfei.net/posts/2013/10/the-query-builder-in-mongodb-java-driver/</link>
+      <pubDate>Sat, 19 Oct 2013 14:05:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/the-query-builder-in-mongodb-java-driver/</guid>
+      <description>&lt;p&gt;一直都習慣先在 Mongo Shell 裡邊寫邊測 query, 所以寫進 Java code
+時自然也就習慣了用 &lt;code&gt;DBObject&lt;/code&gt; 這種 document 樣式的 query 寫法. 例如:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;DBObject query = new BasicDBObject( &amp;quot;x&amp;quot;, new BasicDBObject( &amp;quot;$lt&amp;quot;, 1 ) )
+                .append( &amp;quot;y&amp;quot;, new BasicDBObject( &amp;quot;$gt&amp;quot;, 10).append( &amp;quot;$lt&amp;quot;, 90 ) )
+                .append( &amp;quot;z&amp;quot;, new BasicDBObject( &amp;quot;$in&amp;quot;, Arrays.asList( 1, 3, 5, 7 ) ) );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在 Mongo Shell 等價於這樣的 query json:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;{ x : { $lt : 1 }, y : { $gt : 10, $lt : 90 }, z : { $in : [1, 3, 5, 7] } }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然而, 對於更複雜的 query, 會因為更多的 &lt;code&gt;new BasicDBObject&lt;/code&gt; 而變得更肥大且不可讀. 這或許就是 query builder 上場的好時機吧! 上面的 query 用 builder 的寫法如下, 可以比較直覺的讀懂, 對其他團隊成員或是將來的自己都更友善了些:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;QueryBuilder query = QueryBuilder.start( &amp;quot;x&amp;quot; ).lessThan( 10 )
+                    .and( &amp;quot;y&amp;quot; ).greaterThan( 10 ).lessThan( 90 )
+                    .and( &amp;quot;z&amp;quot; ).in( Arrays.asList( 1, 3, 5, 7 ) );
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Java :: final</title>
+      <link>https://kfei.net/posts/2013/10/java--final/</link>
+      <pubDate>Fri, 11 Oct 2013 13:49:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/java--final/</guid>
+      <description>
+
+&lt;p&gt;在 Java 語言中, final 關鍵字可以用來修飾變數, 方法和類別. 一個簡單的理解是:
+&amp;gt;加上 final 就說明了這玩意兒永遠不會被改變!&lt;/p&gt;
+
+&lt;h1 id=&#34;1-final-variable:5363d511397e8125800831a8a4d9d6d8&#34;&gt;1) final variable&lt;/h1&gt;
+
+&lt;h2 id=&#34;一般變數:5363d511397e8125800831a8a4d9d6d8&#34;&gt;一般變數&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;定義時即須賦值, 用來表示常量.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;物件或陣列:5363d511397e8125800831a8a4d9d6d8&#34;&gt;物件或陣列&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;表示對該物件或陣列的 reference 永不改變. (但物件或陣列本身是可以被修改的!)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;2-final-method:5363d511397e8125800831a8a4d9d6d8&#34;&gt;2) final method&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;類似 C++ 裡的 &lt;code&gt;inline&lt;/code&gt; 關鍵字.&lt;/li&gt;
+&lt;li&gt;聲明此一方法已是&lt;em&gt;最終版&lt;/em&gt;, 永遠不會再被擴充, 意即鎖定此方法, 保護其不會在子類別中被修改.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;3-final-class:5363d511397e8125800831a8a4d9d6d8&#34;&gt;3) final class&lt;/h1&gt;
+
+&lt;h2 id=&#34;斷子絕孫類別:5363d511397e8125800831a8a4d9d6d8&#34;&gt;斷子絕孫類別&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;鎖定此類別不被繼承, 且類別內所有方法也都將被隱式指定為 final.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

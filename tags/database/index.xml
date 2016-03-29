@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Database on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/database/</link>
+    <description>Recent content in Database on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Mon, 14 Oct 2013 07:27:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Estimating the Size of an Index Before Creation</title>
+      <link>https://kfei.net/posts/2013/10/estimating-the-size-of-an-index-before-creation/</link>
+      <pubDate>Mon, 14 Oct 2013 07:27:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/estimating-the-size-of-an-index-before-creation/</guid>
+      <description>&lt;p&gt;最近需要在一個肥大的表上建索引, 考慮到可能會將索引的實體儲存和表分開, 於是有必要在建立索引之前, 先估算其可能會佔用的容量大小, 以方便配置儲存空間.
+Oracle 提供了 &lt;code&gt;dbms_space.create_index_cost&lt;/code&gt; 這個 package 可用. 假設我們要估算在 scott 用戶的 emp 表中的 name 欄位建立索引可能耗用的空間, 可以這樣做：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;set serverout on
+exec dbms_stats.gather_table_stats(scott,&#39;emp&#39;);
+var used_bytes number
+var alloc_bytes number
+exec dbms_space.create_index_cost(&#39;create index name_idx on emp(name)&#39;,
+                                  :used_bytes,
+                                  :alloc_bytes);
+print :used_bytes
+print :alloc_bytes
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

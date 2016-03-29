@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Libvirt on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/libvirt/</link>
+    <description>Recent content in Libvirt on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Tue, 25 Mar 2014 13:25:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/libvirt/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Set up port-forwarding via libvirt&#39;s hook</title>
+      <link>https://kfei.net/posts/2014/03/set-up-port-forwarding-via-libvirts-hook/</link>
+      <pubDate>Tue, 25 Mar 2014 13:25:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/set-up-port-forwarding-via-libvirts-hook/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s a bad idea using one file to maintain all port-forwarding rules for VMs.
+In such a traditional environment (without SDN I mean), consider libvirt&amp;rsquo;s hook
+mechanism as a more modular way.&lt;/p&gt;
+
+&lt;p&gt;For Ubuntu, edit &lt;code&gt;/etc/libvirt/hooks/qemu&lt;/code&gt; and then restart the &lt;code&gt;libvirt-bin&lt;/code&gt;
+service.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# file: /etc/libvirt/hooks/qemu 
+#!/bin/sh
+
+GUEST_NAME=FiveFiveSixSix
+HOST_PORT=5566
+GUEST_IPADDR=5.5.6.6
+GUEST_PORT=5566
+
+if [ &amp;quot;$1&amp;quot; = &amp;quot;$GUEST_NAME&amp;quot; ]; then
+  if [ &amp;quot;$2&amp;quot; = start ]; then
+    iptables -t nat -A PREROUTING -p tcp --dport &amp;quot;$HOST_PORT&amp;quot; \
+         -j DNAT --to &amp;quot;$GUEST_IPADDR:$GUEST_PORT&amp;quot;
+    iptables -I FORWARD -d &amp;quot;$GUEST_IPADDR/32&amp;quot; -p tcp -m state \
+         --state NEW -m tcp --dport &amp;quot;$GUEST_PORT&amp;quot; -j ACCEPT
+  elif [ &amp;quot;$2&amp;quot; = stopped ]; then
+    iptables -t nat -D PREROUTING -p tcp --dport &amp;quot;$HOST_PORT&amp;quot; \
+         -j DNAT --to &amp;quot;$GUEST_IPADDR:$GUEST_PORT&amp;quot;
+    iptables -D FORWARD -d &amp;quot;$GUEST_IPADDR/32&amp;quot; -p tcp -m state \
+         --state NEW -m tcp --dport &amp;quot;$GUEST_PORT&amp;quot; -j ACCEPT
+  fi
+fi
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>virsh error: Cannot allocate memory</title>
+      <link>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</link>
+      <pubDate>Mon, 11 Nov 2013 13:10:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</guid>
+      <description>&lt;p&gt;Today I was trying to increase memory size on a qemu-kvm hosted VM. My plan was as simple as shut it down and then change memory setting via &lt;code&gt;virsh edit &amp;lt;VMName&amp;gt;&lt;/code&gt;, but both &lt;code&gt;virsh edit&lt;/code&gt; and &lt;code&gt;virsh start&lt;/code&gt; throws the same error message:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;error: cannot fork child process: Cannot allocate memory&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;It&amp;rsquo;s weird because &lt;code&gt;free&lt;/code&gt; shows me a sufficient amount of memory. But the fact is VM won&amp;rsquo;t boot anymore and even edit its definition file is impossible. Google gives me an answer: &lt;code&gt;sysctl -w vm.overcommit_memory=1&lt;/code&gt;, but it doesn&amp;rsquo;t work.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# from kernel documentation
+overcommit_memory:
+
+This value contains a flag that enables memory overcommitment.
+
+When this flag is 0, the kernel attempts to estimate the amount
+of free memory left when userspace requests more memory.
+
+When this flag is 1, the kernel pretends there is always enough
+memory until it actually runs out.
+
+When this flag is 2, the kernel uses a &amp;quot;never overcommit&amp;quot;
+policy that attempts to prevent any overcommit of memory.
+Note that user_reserve_kbytes affects this policy.
+
+This feature can be very useful because there are a lot of
+programs that malloc() huge amounts of memory &amp;quot;just-in-case&amp;quot;
+and don&#39;t use much of it.
+
+The default value is 0.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It does make sense! But seems qemu-kvm runtime parameter doesn&amp;rsquo;t affected by &lt;code&gt;sysctl&lt;/code&gt;, so I tried &lt;code&gt;echo 1 &amp;gt; /proc/sys/vm/overcommit_memory&lt;/code&gt; and it just works!&lt;/p&gt;
+
+&lt;p&gt;Note that there are some useful actions for memory management:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 3 means release all cache, including pagecache, dentries, inodes
+echo 3 &amp;gt; /proc/sys/vm/drop_caches
+# compact memory such that free memory is available in contiguous blocks
+echo 1 &amp;gt; compact_memory
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Still confused about why &lt;code&gt;free&lt;/code&gt; tells me OK, but &lt;code&gt;virsh start&lt;/code&gt; negative?&lt;/p&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&#34;&gt;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 20131112&lt;/strong&gt;
+Seems legacy libvirtd (in this case 0.12.0) has a memory leak issue under some situations, so &lt;code&gt;/etc/init.d/libvirtd restart&lt;/code&gt; may solve this problem better. Upgraded to 1.1.1 and watching&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

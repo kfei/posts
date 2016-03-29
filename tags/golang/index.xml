@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Golang on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/golang/</link>
+    <description>Recent content in Golang on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Sun, 25 Jan 2015 06:10:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>sshcam v1.0.0-rc1 release notes</title>
+      <link>https://kfei.net/posts/2015/01/sshcam-v1.0.0-rc1-release-notes/</link>
+      <pubDate>Sun, 25 Jan 2015 06:10:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2015/01/sshcam-v1.0.0-rc1-release-notes/</guid>
+      <description>
+
+&lt;p&gt;這個&lt;a href=&#34;https://github.com/kfei/sshcam/releases/tag/1.0.0-rc1&#34;&gt;版本&lt;/a&gt;主要做的工作都是性能方面的，對於先前版本存在的畫面遲鈍感和高 CPU 佔用問題有明顯的改善。&lt;/p&gt;
+
+&lt;h2 id=&#34;大幅減少-i-o-次數:b699c3fc438c39ddf614f05bf360edcf&#34;&gt;大幅減少 I/O 次數&lt;/h2&gt;
+
+&lt;p&gt;I/O 本來就是昂貴的操作，而 terminal 又是 I/O device 裡特別慢的一種。在這種慢速裝置上進行大量 I/O，還包含了複雜的 ANSI color seqeunce，這是之前畫面更新遲鈍感的主因。因此：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;引入 frame caching 機制縮短 30% ~ 50% 的 ANSI 控制碼長度&lt;/li&gt;
+&lt;li&gt;ANSI 控制碼的化簡合併，從原來每個 pixel 一次 Print 合併為每個 row 一次 Print&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;當然，還可以再優化，例如 Print buffer 的長度應該按照實際因素來決定等。&lt;/p&gt;
+
+&lt;h2 id=&#34;大幅降低-cpu-使用率:b699c3fc438c39ddf614f05bf360edcf&#34;&gt;大幅降低 CPU 使用率&lt;/h2&gt;
+
+&lt;p&gt;透過 Go 的 &lt;a href=&#34;http://golang.org/pkg/net/http/pprof/&#34;&gt;pprof&lt;/a&gt; 工具，發現在彩色模式下，CPU 有幾乎 50% 的時間花在 &lt;a href=&#34;https://gist.github.com/kfei/c563d577c995f943260b#file-using-cie94-L6&#34;&gt;CIE94&lt;/a&gt; 公式裡的 &lt;a href=&#34;https://gist.github.com/kfei/c563d577c995f943260b#file-using-cie94-L5&#34;&gt;math.Sqrt&lt;/a&gt; 運算，這在 pixel 數較多或 fps 較高的情況下會給 CPU 帶來不小的壓力。因此：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;將彩色模式下預設的色距算法改為 YIQ 空間裡的線性距離&lt;/li&gt;
+&lt;li&gt;加上 &lt;code&gt;--max-fps&lt;/code&gt; 參數控制每秒的張數上限&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>sshcam v0.9.8 release notes</title>
+      <link>https://kfei.net/posts/2015/01/sshcam-v0.9.8-release-notes/</link>
+      <pubDate>Mon, 19 Jan 2015 06:11:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2015/01/sshcam-v0.9.8-release-notes/</guid>
+      <description>
+
+&lt;p&gt;總算利用空閒的假日時間把 &lt;a href=&#34;https://github.com/kfei/sshcam&#34;&gt;sshcam&lt;/a&gt; 這兩個重要的功能補完了!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/sWBkJ4BzRtmeZJT2zrI8_Screen%20Shot%202015-01-19%20at%2010.44.29%20PM.png&#34; alt=&#34;Screen Shot 2015-01-19 at 10.44.29 PM.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;2-倍垂直解析度:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;2 倍垂直解析度&lt;/h2&gt;
+
+&lt;p&gt;利用 Unicode HALF BLOCK 字元 (&lt;a href=&#34;http://www.alanwood.net/unicode/block_elements.html&#34;&gt;U+2580/U+2584&lt;/a&gt;) 在一個 row 裡面插入兩條水平掃描線. 解析度提高一倍之外, 每個 &amp;ldquo;pixel&amp;rdquo; 看起來也更趨近正方形:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://i.imgur.com/1lHcSkM.png&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ASCII Only:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/VNwTy4bqTSmbM5PgLppY_XD6A0EJ.png&#34; alt=&#34;XD6A0EJ.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Unicode HALF BLOCK:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再更進一步, 事實上 Unicode 字元集裡還有 QUADRANT BLOCK (U+2596 to U+259F) 可以同理將水平方向的 pixel 增加一倍, 不過依然還是只有兩個顏色可以用, 效果很有限就是了. 且考慮到目前畫面 refresh 已經有一些遲頓, 因此暫時不實作, 等 render 的效能問題解決之後再來玩.&lt;/p&gt;
+
+&lt;h2 id=&#34;彩色畫面:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;彩色畫面&lt;/h2&gt;
+
+&lt;p&gt;原來只支援灰階顯示的原因在於 RGB 到 xterm 256 色盤的映射, 用簡單幾何距離計算色距的效果太差, 畫面的辨識度比灰階模式低許多. 但後來試了 &lt;a href=&#34;http://www.chromapure.com/colorscience-CIE94.asp&#34;&gt;CIE94&lt;/a&gt; 演算法之後發現效果有明顯改善, 因此也就加上 &lt;code&gt;--color&lt;/code&gt; 模式.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Grayscale:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Colorized:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/1s4rAE4lS3ezwMLy4E5W_2fVyRTJ.png&#34; alt=&#34;2fVyRTJ.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;不過, 彩色模式下的畫面 refresh 遲頓感似乎又升高了一級, 猜測可能跟大量的 ANSI 控制碼有關, 這個問題留待有時間再來研究研究. (&lt;em&gt;Update 20150120:&lt;/em&gt; 遲鈍感已透過引入 frame caching 及大量減少 Printf 獲得改善) 再來如果還想更暴力一點, 其實已經有不少 terminal emulator &lt;a href=&#34;https://gist.github.com/XVilka/8346728&#34;&gt;支援 True Color 模式&lt;/a&gt;了&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;最後, 這一連串的過程讓我恍然大悟覺得原來彩色電視機才是人類科技真正偉大的發明啊!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

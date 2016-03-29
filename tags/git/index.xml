@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Git on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/git/</link>
+    <description>Recent content in Git on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Sun, 01 Jun 2014 07:41:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/git/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>gc after git filter-branch</title>
+      <link>https://kfei.net/posts/2014/06/gc-after-git-filter-branch/</link>
+      <pubDate>Sun, 01 Jun 2014 07:41:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/gc-after-git-filter-branch/</guid>
+      <description>&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;git for-each-ref --format=&#39;delete %(refname)&#39; refs/original | git update-ref --stdin
+git reflog expire --expire=now --all
+git gc --prune=now
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>清理那些不堪回首的 Git 歷史</title>
+      <link>https://kfei.net/posts/2014/02/%E6%B8%85%E7%90%86%E9%82%A3%E4%BA%9B%E4%B8%8D%E5%A0%AA%E5%9B%9E%E9%A6%96%E7%9A%84-git-%E6%AD%B7%E5%8F%B2/</link>
+      <pubDate>Fri, 07 Feb 2014 06:03:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/02/%E6%B8%85%E7%90%86%E9%82%A3%E4%BA%9B%E4%B8%8D%E5%A0%AA%E5%9B%9E%E9%A6%96%E7%9A%84-git-%E6%AD%B7%E5%8F%B2/</guid>
+      <description>&lt;p&gt;Git commit comment 風格慣例統一之後, 遺留在 master 上那些不堪回首的 commit history 怎麼辦?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;git checkout --orphan tmp &amp;lt;new_starting_point&amp;gt;
+git commit -m &amp;quot;bye bye history&amp;quot;
+git rebase --onto tmp &amp;lt;new_starting_point&amp;gt; master
+git branch -D tmp
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>More remotes for a GIT repo</title>
+      <link>https://kfei.net/posts/2013/11/more-remotes-for-a-git-repo/</link>
+      <pubDate>Thu, 07 Nov 2013 06:05:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/11/more-remotes-for-a-git-repo/</guid>
+      <description>&lt;p&gt;We know we can add some other remotes and its url after an initial &lt;code&gt;git remote
+add origin&lt;/code&gt;, and one more trick is that we can do some group aliases such as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# &amp;lt;repo&amp;gt;/.git/config
+[remote &amp;quot;mars&amp;quot;]
+        url = &amp;lt;url-mars&amp;gt;
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[remote &amp;quot;origin&amp;quot;]
+        url = &amp;lt;url-origin&amp;gt;
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[remote &amp;quot;all&amp;quot;]
+        url = &amp;lt;url-mars&amp;gt;
+        url = &amp;lt;url-origin&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we can push to 2 remotes via one command like &lt;code&gt;git push all master:master&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Change commit time stamp in GIT</title>
+      <link>https://kfei.net/posts/2013/10/change-commit-time-stamp-in-git/</link>
+      <pubDate>Mon, 21 Oct 2013 18:01:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/change-commit-time-stamp-in-git/</guid>
+      <description>&lt;p&gt;由於寫 code 專用的 VM 有時候會被我 pause, 然而 resume 後時間往往會跑掉,
+這時候要是做了 commit 就會出現新 commit 的時間比舊 commit 的時間更早的怪事,
+像這樣:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;* ee0daaf 2013-10-16 | swap method2 and method3 (HEAD, master) [kfei]
+* a1544cc 2013-10-21 | completes VD Center setup (origin/master, origin/HEAD) [kfei]
+* 0a4e123 2013-10-03 | modify env check process about qemu [kfei]
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以透過 amend 加上 &lt;code&gt;--date&lt;/code&gt; 參數的方式來修改錯誤的 commit time stamp:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;git commit --amend --date=&amp;quot;Tue Oct 22 01:56 2013 +0800&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

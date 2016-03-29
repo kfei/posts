@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/linux/</link>
+    <description>Recent content in Linux on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Tue, 18 Mar 2014 11:23:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Reduce disk usage on Debian-based distro.</title>
+      <link>https://kfei.net/posts/2014/03/reduce-disk-usage-on-debian-based-distro./</link>
+      <pubDate>Tue, 18 Mar 2014 11:23:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/03/reduce-disk-usage-on-debian-based-distro./</guid>
+      <description>&lt;p&gt;前陣子因為公司產品上的需求, 客製了一套自己的 distro: V____x, 因為&lt;del&gt;我很懶&lt;/del&gt;一些因素選擇直接從 Ubuntu Minimal 出發&amp;hellip; 最終 Xorg, Openbox WM 加上公司產品及一些相依套件庫, 整個 OS disk usage 大約是 1.3G, 雖然對我來說還是太肥, 但安裝在 8G 硬碟的 thin client 上已經是綽綽有餘, 足以交差!&lt;/p&gt;
+
+&lt;p&gt;然而好景不常, 銷售團隊馬上接到任務, 客戶現有數百台搭配 1G CF 卡(實際約 900MB)的 thin client, 問 V____x 是否可以瘦身到 1G 以內並安裝上去?&lt;/p&gt;
+
+&lt;p&gt;於是就開始了緊急瘦身計劃.&lt;/p&gt;
+
+&lt;p&gt;ps. 這篇是事後補寫的, 因此有些數據只是憑印象.&lt;/p&gt;
+
+&lt;p&gt;Part 0:
+雖然 &lt;code&gt;df -h&lt;/code&gt; 看到 1.3G, 但實際透過 &lt;code&gt;du -sxh /&lt;/code&gt; 發現檔案本身共佔約 1.1G 而已, 也就是大約減重 200MB 就可以了! 好像很簡單?&lt;/p&gt;
+
+&lt;p&gt;Part 1:
+二話不說先進 /var/log 狂砍, 再殺到 /usr/share 看看有什麼 doc, manual, locale 之類的可以刪, 基本原則是只留 en locale!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd /usr/share/locale
+$ find ./ -maxdepth 1 -type d | tail -n +2 | sed -e &#39;s/\.\///g&#39; | \
+      grep -E -v &#39;^(en|currency|default|l10n).*&#39; | \
+      while read d; do rm -rf $d; done
+$ localedef --list-archive | grep -E -v &#39;^(en)&#39; | \
+      xargs localedef --delete-from-archive
+
+$ cd /usr/share/i18n/locales
+$ find ./ -name &amp;quot;??_*&amp;quot; | grep -E -v &#39;(en)_&#39; | while read f; do rm -f $f; 
+
+$ cd /usr/share/man
+$ find ./ -maxdepth 1 -type d | tail -n +2 | grep -E -v &#39;(en|man).*&#39; | \
+      while read d; do rm -rf $d; done
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Part 2:
+再看看有什麼可以移除的套件, 包含 Ubuntu 自帶的和一些為了 build 自家產品裝的 *-dev 類套件! 直接透過&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;dpkg-query -Wf &#39;${Installed-Size}\t${Package}\n&#39; | sort -n
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;把目前系統所有已裝套件按佔用空間大小排序列出, 然後&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;aptitude -F&#39;%p %I&#39; search &amp;lt;package_name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;一一檢討吧! 怕誤砍可以搭配 &lt;code&gt;dpkg -L libgdbm-dev&lt;/code&gt; 確認相關檔案.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;apt-get purge --auto-remove &amp;lt;package_name&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;幾乎把所有 *-dev 套件都刪光了, 另外還刪了 gcc, vim-runtime, geoip-database, 還有一些不記得了的等幾個比較佔空間的非必要套件(所謂佔空間其實不過也就幾 MB 大&amp;hellip;), 在這一步驟應該可以搜刮出 100MB 左右.&lt;/p&gt;
+
+&lt;p&gt;看起來好像差不多了. 接下來是關於 file system 的故事&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Part 3:
+&lt;strong&gt;格式化.&lt;/strong&gt; 雖然 CF Card 還是搭配 FAT 使用為佳, 不過為了直接使用 rsync 搬移 OS 方便(畢竟只是客戶 POC), 還是把它格式化成 ext4 了! (因為 FAT 沒有 symlink 這種 file attribute, rsync migration 會失敗, 至於 journalized file system 在 CF Card 上會造成的諸多慘劇嘛&amp;hellip; 改天再專題討論吧!)&lt;/p&gt;
+
+&lt;p&gt;這裡必須說明一下, 我嘗試透過 &lt;code&gt;tune2fs -O ^has_journal /dev/sda1&lt;/code&gt; 將 ext4 上的 journal 取消, 不過一直失敗, 所以索性就設個小一點的 journal size 吧!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mkfs.ext4 -J size=4 /dev/sdb1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(這張 CF Card 實在太小, 因此 file system 上的 journal 必須關閉或儘量的小&amp;hellip;)&lt;/p&gt;
+
+&lt;p&gt;到此事情還未結束, ext4 file system 本身的 overhead 大約 1.5%, 也就是說實際可用空間將只剩下 900MB * 0.985 = 886MB, 好不容易東省西省得來的幾 MB 就這樣花掉了, 真的是捉襟見肘! 因此 &lt;code&gt;mkfs.ext3 -J size=4 /dev/sdb1&lt;/code&gt; 改用 ext3&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Part 4:
+&lt;strong&gt;搬家.&lt;/strong&gt; 因為 V____x 是綁定硬體發行的, 所以一直沒做 installer, 因此就直接 rsync 硬搬:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;rsync -aAXv /* /mnt/sdb1 --exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found}
+# Alternative: tar -C / -clspf - . | tar -xlspvf -
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Part 5:
+&lt;strong&gt;把 GRUB 裝到 CF Card 上.&lt;/strong&gt; &lt;code&gt;bldid&lt;/code&gt; 確認一下 CF Card 的 UUID, 視需要改一下 /mnt/sdb1/etc/fstab. 然後:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mount -o bind /dev /mnt/sdb1/dev
+mount -t proc none /proc /mnt/sdb1/proc
+chroot /mnt/sdb1 /bin/bash
+update-grub &amp;amp;&amp;amp; grub-install /dev/sdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(這邊可能會有小雷, 如果得到空間不足, GRUB image 裝不下去的錯誤, 可以重新切一下 partition, 在第一個 partition 前空出足夠空間給 GRUB 擺.)&lt;/p&gt;
+
+&lt;p&gt;Part 6:
+把 CF Card 裝回 thin client, 確認開機正常, 打完收工!&lt;/p&gt;
+
+&lt;p&gt;ref.
+&lt;a href=&#34;https://wiki.ubuntu.com/ReducingDiskFootprint&#34;&gt;https://wiki.ubuntu.com/ReducingDiskFootprint&lt;/a&gt;
+&lt;a href=&#34;http://jamyy.dyndns.org/blog/2012/07/3938.html&#34;&gt;http://jamyy.dyndns.org/blog/2012/07/3938.html&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>virsh error: Cannot allocate memory</title>
+      <link>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</link>
+      <pubDate>Mon, 11 Nov 2013 13:10:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/11/virsh-error-cannot-allocate-memory/</guid>
+      <description>&lt;p&gt;Today I was trying to increase memory size on a qemu-kvm hosted VM. My plan was as simple as shut it down and then change memory setting via &lt;code&gt;virsh edit &amp;lt;VMName&amp;gt;&lt;/code&gt;, but both &lt;code&gt;virsh edit&lt;/code&gt; and &lt;code&gt;virsh start&lt;/code&gt; throws the same error message:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;error: cannot fork child process: Cannot allocate memory&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;It&amp;rsquo;s weird because &lt;code&gt;free&lt;/code&gt; shows me a sufficient amount of memory. But the fact is VM won&amp;rsquo;t boot anymore and even edit its definition file is impossible. Google gives me an answer: &lt;code&gt;sysctl -w vm.overcommit_memory=1&lt;/code&gt;, but it doesn&amp;rsquo;t work.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# from kernel documentation
+overcommit_memory:
+
+This value contains a flag that enables memory overcommitment.
+
+When this flag is 0, the kernel attempts to estimate the amount
+of free memory left when userspace requests more memory.
+
+When this flag is 1, the kernel pretends there is always enough
+memory until it actually runs out.
+
+When this flag is 2, the kernel uses a &amp;quot;never overcommit&amp;quot;
+policy that attempts to prevent any overcommit of memory.
+Note that user_reserve_kbytes affects this policy.
+
+This feature can be very useful because there are a lot of
+programs that malloc() huge amounts of memory &amp;quot;just-in-case&amp;quot;
+and don&#39;t use much of it.
+
+The default value is 0.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It does make sense! But seems qemu-kvm runtime parameter doesn&amp;rsquo;t affected by &lt;code&gt;sysctl&lt;/code&gt;, so I tried &lt;code&gt;echo 1 &amp;gt; /proc/sys/vm/overcommit_memory&lt;/code&gt; and it just works!&lt;/p&gt;
+
+&lt;p&gt;Note that there are some useful actions for memory management:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 3 means release all cache, including pagecache, dentries, inodes
+echo 3 &amp;gt; /proc/sys/vm/drop_caches
+# compact memory such that free memory is available in contiguous blocks
+echo 1 &amp;gt; compact_memory
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Still confused about why &lt;code&gt;free&lt;/code&gt; tells me OK, but &lt;code&gt;virsh start&lt;/code&gt; negative?&lt;/p&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&#34;&gt;https://www.kernel.org/doc/Documentation/sysctl/vm.txt&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 20131112&lt;/strong&gt;
+Seems legacy libvirtd (in this case 0.12.0) has a memory leak issue under some situations, so &lt;code&gt;/etc/init.d/libvirtd restart&lt;/code&gt; may solve this problem better. Upgraded to 1.1.1 and watching&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>My 10 UNIX Command Line Mistakes</title>
+      <link>https://kfei.net/posts/2013/10/my-10-unix-command-line-mistakes/</link>
+      <pubDate>Fri, 25 Oct 2013 03:01:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/my-10-unix-command-line-mistakes/</guid>
+      <description>&lt;p&gt;致命的指令失誤是每個 linuxer 成長過程中必定有過的經驗, 誰也免不了.&lt;/p&gt;
+
+&lt;p&gt;別不信邪, 即使是 Gentoo Portage 的 official ebuild,
+也曾經出現過 &lt;code&gt;rm -rf /lalala&lt;/code&gt; 誤寫為 &lt;code&gt;rm -rf / lalala&lt;/code&gt; ,
+造成使用者更新套件後系統全毀的慘劇&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.cyberciti.biz/tips/my-10-unix-command-line-mistakes.html&#34;&gt;http://www.cyberciti.biz/tips/my-10-unix-command-line-mistakes.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;這裡蒐集了十條失誤指令, 是否勾起了你什麼回憶?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Directly access the file system inside a VM disk image</title>
+      <link>https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/</link>
+      <pubDate>Wed, 23 Oct 2013 08:40:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/directly-access-the-file-system-inside-a-vm-disk-image/</guid>
+      <description>&lt;p&gt;Consider a situation that you want to change some settings i.e. edit some files
+in VM, it&amp;rsquo;ll be nice if you don&amp;rsquo;t have to boot it up then log in to make some
+changes. So the question becomes how to access the file system inside the VM
+disk image file?&lt;/p&gt;
+
+&lt;p&gt;To simplify the problem, assume you were using RAW format, if not, convert it by:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;qemu-img convert old-hd.qcow2 hd.raw
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next step is to calculate the partition offset.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ file hd.raw 
+hda.raw: x86 boot sector; GRand Unified Bootloader, stage1 version 0x3, boot drive 0x80, 1st sector stage2 0x849f8, GRUB version 0.94; partition 1: ID=0x83, active, starthead 32, startsector 2048, 1024000 sectors; partition 2: ID=0x8e, starthead 221, startsector 1026048, 124803072 sectors, code offset 0x48
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Look at the &lt;strong&gt;startsector 2048&lt;/strong&gt; portion of output, this means that the
+filesystem itself starts on sector 2048, and typically this is the /boot
+partition. So to access the /boot partition you can mount the image with an
+&lt;code&gt;offset&lt;/code&gt; parameter, which in this case is 2048 times 512 (the size of
+a sector), 1048576. For other partitions, &lt;code&gt;fdisk -l hd.raw&lt;/code&gt; will be useful.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mount -o loop,offset=1048576 hd.raw /mnt/hdp1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Further, if there is LVM inside, partitions cannot be mounted using &amp;lsquo;mount&amp;rsquo;. In
+such a case the image could be mounted with: &lt;code&gt;bash
+$ vgscan
+  Reading all physical volumes.  This may take a while...
+  Found volume group &amp;quot;&amp;lt;VGName&amp;gt;&amp;quot; using metadata type lvm2
+$ vgchange -ay
+   2 logical volume(s) in volume group &amp;quot;&amp;lt;VGName&amp;gt;&amp;quot; now active
+$ mount /dev/&amp;lt;VGName&amp;gt;/&amp;lt;LogicalVolumeName&amp;gt; /mnt/hdpN
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;ref. &lt;a href=&#34;http://en.wikibooks.org/wiki/QEMU/Images#Mounting_an_image_on_the_host&#34;&gt;http://en.wikibooks.org/wiki/QEMU/Images#Mounting_an_image_on_the_host&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ImageMagick and the GRUB splash image</title>
+      <link>https://kfei.net/posts/2013/10/imagemagick-and-the-grub-splash-image/</link>
+      <pubDate>Fri, 04 Oct 2013 14:37:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/10/imagemagick-and-the-grub-splash-image/</guid>
+      <description>&lt;p&gt;Sometimes we have to make our own image for GRUB splash background. But there
+are some restrictions on that image for GRUB bootloader to accept and display
+it. By ImageMagick, we have an easy way to convert any image to satisfy that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;convert oldsplash.jpg -resample 72 -sampling-factor 2x2 -resize 640x480\! newsplash.jpg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Hint:&lt;/em&gt; The &lt;code&gt;\!&lt;/code&gt; means &lt;em&gt;FORCE&lt;/em&gt;, so it maybe breaks original ratio.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Build your own customized install disc from CentOS 6.4</title>
+      <link>https://kfei.net/posts/2013/09/build-your-own-customized-install-disc-from-centos-6.4/</link>
+      <pubDate>Mon, 30 Sep 2013 12:07:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2013/09/build-your-own-customized-install-disc-from-centos-6.4/</guid>
+      <description>&lt;p&gt;First, prepare a fresh-installed CentOS as your playground, choose the packages
+that your customized disc like to install. Note that if you don&amp;rsquo;t do so, the
+&lt;code&gt;~/install.log&lt;/code&gt; used in the following process will not exists.&lt;/p&gt;
+
+&lt;p&gt;Create a working directory, e.g., &lt;code&gt;~/vt-iso&lt;/code&gt;, and its sub directory
+&lt;code&gt;~/vt-iso/isolinux/ks&lt;/code&gt; to store kickstart config files,
+&lt;code&gt;~/vt-iso/isolinux/postinstall&lt;/code&gt; to store files for post-installation tasks.&lt;/p&gt;
+
+&lt;p&gt;Mount the CentOS install DVD disc 1 to &lt;code&gt;/mnt/cdrom&lt;/code&gt;, copy all the files from
+the &lt;code&gt;/mnt/cdrom/isolinux&lt;/code&gt; directory into &lt;code&gt;~/vt-iso/isolinux&lt;/code&gt;. And do not forget
+the &lt;code&gt;/mnt/cdrom/.discinfo&lt;/code&gt; file, it should be copied into &lt;code&gt;~/vt-iso/isolinux&lt;/code&gt;
+as well.&lt;/p&gt;
+
+&lt;p&gt;Gunzip the &lt;code&gt;comps.xml.gz&lt;/code&gt; into &lt;code&gt;~/vt-iso/comps.xml&lt;/code&gt;, in CentOS 6.4 it will be
+&lt;code&gt;/mnt/cdrom/repodata/[UGLYHEXCODE]-c6-x86_64-comps.xml.gz&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now it&amp;rsquo;s time to write down your kickstart config. Note that there are some
+tricks in the following config: a variant-size issue for disk partitioning and
+a baseurl issue for repository.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# Put these into kickstart config.
+clearpart --all
+part / --fstype=ext4 --size=4096
+part swap --size 1024
+# Let the partition grow as big as possible.
+part /data --fstype=ext4 --size=1024 --grow
+# Change the baseurl to /mnt/source or you&#39;ll get some repo not found error.
+repo --name=&amp;quot;CentOS&amp;quot;  --baseurl=file:///mnt/source --cost=100
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Optional:&lt;/em&gt; Refine all packages that are really needed, compose your own
+comps.xml and define some new groups.&lt;/p&gt;
+
+&lt;p&gt;Create a directory &lt;code&gt;~/vt-iso/all_rpms&lt;/code&gt; and copy all RPMs under Packages
+directory of CentOS disc 1,2 into, and then run mvRPM.sh to copy all RPMs that
+are really needed into &lt;code&gt;~/vt-iso/isolinux/Packages&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mvRPM.sh ~/install.log ~/vt-iso/all_rpms/ ~/vt-iso/isolinux/Packages
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And don&amp;rsquo;t forget to copy all extra needed RPMs into
+&lt;code&gt;~/vt-iso/isolinux/Packages&lt;/code&gt;, e.g. ruby19, git, dialog, pv, etc.&lt;/p&gt;
+
+&lt;p&gt;Then test the dependencies in your set of RPMs, if there are some problem, fix
+it and go on.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mkdir /tmp/testdb
+rpm --initdb --dbpath /tmp/testdb
+rpm --test --dbpath /tmp/testdb -Uvh *.rpm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The repodata files provide information about the available packages, you have
+to re-build them for your customized disc.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ~/vt-iso/isolinux
+createrepo -u &amp;quot;media://`head -1 .discinfo`&amp;quot; -g ~/vt-iso/comps.xml .
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Optional:&lt;/em&gt; Hack the anaconda installer. For instance, your boss ask you to
+replace the CentOS logo or something like that, by the way, in this example it
+will be in &lt;code&gt;/tmp/new_install/usr/share/anaconda/pixmaps/*.png&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mount -o loop ~/vt-iso/isolinux/images/install.img /tmp/old_install
+mkdir /tmp/new_install
+rsync -av /tmp/old_install /tmp/new_install
+# Do the dirty works.
+mkfs.cramfs /tmp/new_install/ install.img.new
+mv install.img.new ~/vt-iso/isolinux/images/install.img
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Optional:&lt;/em&gt; Okay, if you also want to hack the &lt;code&gt;initrd.img&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mkdir /tmp/initrd
+# The compression method was changed to lzma since CentOS 6.4
+lzcat ~/vt-iso/isolinux/initrd.img | ( cd /tmp/initrd &amp;amp;&amp;amp; cpio -id )
+# Do the dirty works. e.g. edit the .buildstamp file
+cd /tmp/initrd
+find . | cpio -co | lzma &amp;gt; /tmp/initrd.img.new
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now going to the most exciting step: Build the ISO and test it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ~/vt-iso
+mkisofs -o VT.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -v -T isolinux/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If the customized disc boot and install successfully, we can think further
+about the pre/post installation tasks now. In my case, I have to setup my own
+program (without RPM) to the customized installed system, so I do these things
+during post-installation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# Put these into kickstart config.
+%post --nochroot
+mkdir /mnt/sysimage/usr/sbin/wizard
+cd /mnt/sysimage/usr/sbin/wizard
+tar xjvpf /mnt/source/postinstall/wizard.tar.bz
+echo &amp;quot;( cd /usr/sbin/wizard &amp;amp;&amp;amp; /usr/bin/ruby19 repl )&amp;quot; &amp;gt;&amp;gt; /mnt/sysimage/root/.bashrc
+%end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that the new root directory during post-installation is &lt;code&gt;/mnt/sysimage&lt;/code&gt;,
+and cdrom is mounted at &lt;code&gt;/mnt/source&lt;/code&gt;. &lt;em&gt;Hint:&lt;/em&gt; Mention the &lt;code&gt;--nochroot&lt;/code&gt; flag.&lt;/p&gt;
+
+&lt;p&gt;And some other are:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# Put these into kickstart config.
+%post
+# Make an auto-login console.
+sed -i -e &#39;s/exec \/sbin\/mingetty $TTY/exec \/sbin\/mingetty --autologin root $TTY/g&#39; /etc/init/tty.conf
+# Append VGA boot parameter to kernel, it&#39;s an 1024x768 resolution.
+sed -i &#39;/kernel/ s/$/ vga=791/&#39; /boot/grub/grub.conf
+# Perhaps your boss want you replace something during grub.
+sed -i &#39;/^title/ s/title CentOS.*/title XXXXX/g&#39; /boot/grub/grub.conf
+%end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Ref.&lt;/em&gt;
+1) &lt;a href=&#34;http://smorgasbork.com/component/content/article/35-linux/128-building-a-custom-centos-6-kickstart-disc-part-1&#34;&gt;http://smorgasbork.com/component/content/article/35-linux/128-building-a-custom-centos-6-kickstart-disc-part-1&lt;/a&gt;
+2) &lt;a href=&#34;http://systemdilettante.blogspot.tw/2013/04/playing-with-initrd.html&#34;&gt;http://systemdilettante.blogspot.tw/2013/04/playing-with-initrd.html&lt;/a&gt;
+3) &lt;a href=&#34;http://zhan.renren.com/mylinux?gid=3602888498025453823&#34;&gt;http://zhan.renren.com/mylinux?gid=3602888498025453823&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

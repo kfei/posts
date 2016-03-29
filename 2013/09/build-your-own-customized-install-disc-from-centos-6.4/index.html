@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Build your own customized install disc from CentOS 6.4 &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2013/09/build-your-own-customized-install-disc-from-centos-6.4/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2013-09-30T12:07:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <meta property="og:article:tag" content="linux" />
+    
+    
+
+  <title>
+     Build your own customized install disc from CentOS 6.4 &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2013/09/build-your-own-customized-install-disc-from-centos-6.4/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Build your own customized install disc from CentOS 6.4</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2013-09-30T12:07:00&#43;08:00">
+            Sep 30, 2013
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://kfei.net/posts/tags/linux/">#linux</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>First, prepare a fresh-installed CentOS as your playground, choose the packages
+that your customized disc like to install. Note that if you don&rsquo;t do so, the
+<code>~/install.log</code> used in the following process will not exists.</p>
+
+<p>Create a working directory, e.g., <code>~/vt-iso</code>, and its sub directory
+<code>~/vt-iso/isolinux/ks</code> to store kickstart config files,
+<code>~/vt-iso/isolinux/postinstall</code> to store files for post-installation tasks.</p>
+
+<p>Mount the CentOS install DVD disc 1 to <code>/mnt/cdrom</code>, copy all the files from
+the <code>/mnt/cdrom/isolinux</code> directory into <code>~/vt-iso/isolinux</code>. And do not forget
+the <code>/mnt/cdrom/.discinfo</code> file, it should be copied into <code>~/vt-iso/isolinux</code>
+as well.</p>
+
+<p>Gunzip the <code>comps.xml.gz</code> into <code>~/vt-iso/comps.xml</code>, in CentOS 6.4 it will be
+<code>/mnt/cdrom/repodata/[UGLYHEXCODE]-c6-x86_64-comps.xml.gz</code>.</p>
+
+<p>Now it&rsquo;s time to write down your kickstart config. Note that there are some
+tricks in the following config: a variant-size issue for disk partitioning and
+a baseurl issue for repository.</p>
+
+<pre><code class="language-bash"># Put these into kickstart config.
+clearpart --all
+part / --fstype=ext4 --size=4096
+part swap --size 1024
+# Let the partition grow as big as possible.
+part /data --fstype=ext4 --size=1024 --grow
+# Change the baseurl to /mnt/source or you'll get some repo not found error.
+repo --name=&quot;CentOS&quot;  --baseurl=file:///mnt/source --cost=100
+</code></pre>
+
+<p><em>Optional:</em> Refine all packages that are really needed, compose your own
+comps.xml and define some new groups.</p>
+
+<p>Create a directory <code>~/vt-iso/all_rpms</code> and copy all RPMs under Packages
+directory of CentOS disc 1,2 into, and then run mvRPM.sh to copy all RPMs that
+are really needed into <code>~/vt-iso/isolinux/Packages</code>.</p>
+
+<pre><code class="language-bash">mvRPM.sh ~/install.log ~/vt-iso/all_rpms/ ~/vt-iso/isolinux/Packages
+</code></pre>
+
+<p>And don&rsquo;t forget to copy all extra needed RPMs into
+<code>~/vt-iso/isolinux/Packages</code>, e.g. ruby19, git, dialog, pv, etc.</p>
+
+<p>Then test the dependencies in your set of RPMs, if there are some problem, fix
+it and go on.</p>
+
+<pre><code class="language-bash">mkdir /tmp/testdb
+rpm --initdb --dbpath /tmp/testdb
+rpm --test --dbpath /tmp/testdb -Uvh *.rpm
+</code></pre>
+
+<p>The repodata files provide information about the available packages, you have
+to re-build them for your customized disc.</p>
+
+<pre><code class="language-bash">cd ~/vt-iso/isolinux
+createrepo -u &quot;media://`head -1 .discinfo`&quot; -g ~/vt-iso/comps.xml .
+</code></pre>
+
+<p><em>Optional:</em> Hack the anaconda installer. For instance, your boss ask you to
+replace the CentOS logo or something like that, by the way, in this example it
+will be in <code>/tmp/new_install/usr/share/anaconda/pixmaps/*.png</code>.</p>
+
+<pre><code class="language-bash">mount -o loop ~/vt-iso/isolinux/images/install.img /tmp/old_install
+mkdir /tmp/new_install
+rsync -av /tmp/old_install /tmp/new_install
+# Do the dirty works.
+mkfs.cramfs /tmp/new_install/ install.img.new
+mv install.img.new ~/vt-iso/isolinux/images/install.img
+</code></pre>
+
+<p><em>Optional:</em> Okay, if you also want to hack the <code>initrd.img</code>:</p>
+
+<pre><code class="language-bash">mkdir /tmp/initrd
+# The compression method was changed to lzma since CentOS 6.4
+lzcat ~/vt-iso/isolinux/initrd.img | ( cd /tmp/initrd &amp;&amp; cpio -id )
+# Do the dirty works. e.g. edit the .buildstamp file
+cd /tmp/initrd
+find . | cpio -co | lzma &gt; /tmp/initrd.img.new
+</code></pre>
+
+<p>Now going to the most exciting step: Build the ISO and test it:</p>
+
+<pre><code class="language-bash">cd ~/vt-iso
+mkisofs -o VT.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -v -T isolinux/
+</code></pre>
+
+<p>If the customized disc boot and install successfully, we can think further
+about the pre/post installation tasks now. In my case, I have to setup my own
+program (without RPM) to the customized installed system, so I do these things
+during post-installation:</p>
+
+<pre><code class="language-bash"># Put these into kickstart config.
+%post --nochroot
+mkdir /mnt/sysimage/usr/sbin/wizard
+cd /mnt/sysimage/usr/sbin/wizard
+tar xjvpf /mnt/source/postinstall/wizard.tar.bz
+echo &quot;( cd /usr/sbin/wizard &amp;&amp; /usr/bin/ruby19 repl )&quot; &gt;&gt; /mnt/sysimage/root/.bashrc
+%end
+</code></pre>
+
+<p>Note that the new root directory during post-installation is <code>/mnt/sysimage</code>,
+and cdrom is mounted at <code>/mnt/source</code>. <em>Hint:</em> Mention the <code>--nochroot</code> flag.</p>
+
+<p>And some other are:</p>
+
+<pre><code class="language-bash"># Put these into kickstart config.
+%post
+# Make an auto-login console.
+sed -i -e 's/exec \/sbin\/mingetty $TTY/exec \/sbin\/mingetty --autologin root $TTY/g' /etc/init/tty.conf
+# Append VGA boot parameter to kernel, it's an 1024x768 resolution.
+sed -i '/kernel/ s/$/ vga=791/' /boot/grub/grub.conf
+# Perhaps your boss want you replace something during grub.
+sed -i '/^title/ s/title CentOS.*/title XXXXX/g' /boot/grub/grub.conf
+%end
+</code></pre>
+
+<p><em>Ref.</em>
+1) <a href="http://smorgasbork.com/component/content/article/35-linux/128-building-a-custom-centos-6-kickstart-disc-part-1">http://smorgasbork.com/component/content/article/35-linux/128-building-a-custom-centos-6-kickstart-disc-part-1</a>
+2) <a href="http://systemdilettante.blogspot.tw/2013/04/playing-with-initrd.html">http://systemdilettante.blogspot.tw/2013/04/playing-with-initrd.html</a>
+3) <a href="http://zhan.renren.com/mylinux?gid=3602888498025453823">http://zhan.renren.com/mylinux?gid=3602888498025453823</a></p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Build%20your%20own%20customized%20install%20disc%20from%20CentOS%206.4&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f09%2fbuild-your-own-customized-install-disc-from-centos-6.4%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2013%2f09%2fbuild-your-own-customized-install-disc-from-centos-6.4%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f09%2fbuild-your-own-customized-install-disc-from-centos-6.4%2f&amp;description=Build%20your%20own%20customized%20install%20disc%20from%20CentOS%206.4"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f09%2fbuild-your-own-customized-install-disc-from-centos-6.4%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Gitlab on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/tags/gitlab/</link>
+    <description>Recent content in Gitlab on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Mon, 29 Sep 2014 08:17:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/tags/gitlab/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Gitlab upgrade notes</title>
+      <link>https://kfei.net/posts/2014/09/gitlab-upgrade-notes/</link>
+      <pubDate>Mon, 29 Sep 2014 08:17:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/09/gitlab-upgrade-notes/</guid>
+      <description>&lt;p&gt;&lt;em&gt;Updated for Omnibus 7.6.2 package - 20150128&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that for an &lt;strong&gt;omnibus installation&lt;/strong&gt;, Gitlab files are under &lt;code&gt;/var/opt/gitlab&lt;/code&gt; and &lt;code&gt;/opt/gitlab/embedded/service&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Before any action, stop services that may change database:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl stop unicorn
+gitlab-ctl stop sidekiq
+gitlab-ctl stop nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create a backup (will result in a tar ball under &lt;code&gt;/var/opt/gitlab/backups/&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-rake gitlab:backup:create
+cp /etc/gitlab/gitlab.rb /etc/gitlab/gitlab.rb.bak
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Install new version, which automatically remove the previous version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;dpkg -i ${NEW_VERSION}.deb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Remove previous configs in case you have some customized settings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-rake gitlab:backup:restore
+# BACKUP=timestamp_of_backup is optional
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Restore configs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mv /etc/gitlab/gitlab.rb.bak /etc/gitlab/gitlab.rb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Start the upgrade process (including database migrations):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl reconfigure
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Maybe) If reconfiguration throws some exception about postgresql:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl start postgresql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Maybe) Restore hacked files, e.g., logo_white.png, favicon.ico, etc.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cp /path/to/customized/logo-white.png /opt/gitlab/embedded/service/gitlab-rails/public/assets/logo-white-xxxxxxx.png
+gitlab-rake cache:clear RAILS_ENV=production
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Restart Gitlab instance and check if it works:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl restart
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A migration from Gitolite to Gitlab</title>
+      <link>https://kfei.net/posts/2014/05/a-migration-from-gitolite-to-gitlab/</link>
+      <pubDate>Wed, 07 May 2014 03:58:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/05/a-migration-from-gitolite-to-gitlab/</guid>
+      <description>
+
+&lt;p&gt;注意 &lt;a href=&#34;https://www.gitlab.com/&#34;&gt;Gitlab&lt;/a&gt; 這個專案很久了, 最近因為一些需求決定將公司所有的 Git repos 從 Gitolite 搬到 Gitlab 上.&lt;/p&gt;
+
+&lt;p&gt;一直以來都是以 &lt;strong&gt;Gitolite + Redmine + Jenkins&lt;/strong&gt; 這套大三元作為開發及持續整合的環境, 耦合程度並不高, 因此將 Gitolite 抽換成 Gitlab 其實也只有一些 &lt;del&gt;小&lt;/del&gt; 工作要做, 在此記錄一下.&lt;/p&gt;
+
+&lt;h2 id=&#34;git-repos-migration:d4d5327eb990d67f6a7dd9f2969fdc97&#34;&gt;Git repos migration&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# Set old url to read-only in Gitolite to avoid user still pushing their codes onto,
+# then create new project and get its url in Gitlab.
+git clone --bare &amp;lt;old_url&amp;gt;
+# Optional: git gc --prune=now
+cd &amp;lt;repo_dir&amp;gt; &amp;amp;&amp;amp; git remote set-url origin &amp;lt;new_url&amp;gt;
+git push --mirror origin
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;jenkins-job-trigger:d4d5327eb990d67f6a7dd9f2969fdc97&#34;&gt;Jenkins job trigger&lt;/h2&gt;
+
+&lt;p&gt;有兩種方法可以做到. 一是設定 Gitlab 所提供的 &lt;em&gt;web hooks&lt;/em&gt; 機制去觸發 Jenkins 工作; 二是用傳統的方法, 在 &lt;code&gt;&amp;lt;repo_path&amp;gt;/post-update&lt;/code&gt; 裡寫 curl 指令. 前者需要注意的地方是 Gitlab 的 &lt;em&gt;web hooks&lt;/em&gt; 一律都是 POST request, 而 Jenkins 的 remote trigger 卻只接受 GET request, 尷尬了! 為此我卡關了一點時間, 差點直接去改 Jenkins 的 code, 後來偶然發現 Jenkins 上的 Git plugin 其實也定義了一個界面供遠端呼叫, 例如: &lt;code&gt;curl http://&amp;lt;jenkins_server&amp;gt;/git/notifyCommit?url=&amp;lt;git_repo_url&amp;gt;&lt;/code&gt; 可以觸發所有設定了 &lt;code&gt;&amp;lt;git_repo_url&amp;gt;&lt;/code&gt; 的工作去執行一次 pulling SCM. 既然這樣, 那把所有 Job 的 build mode 從 remote trigger 改成 pulling SCM 不就好了? 是的! 就是這麼簡單.
+至於第二種方法就沒什麼好特別說的了, 只要找到 Gitlab 把 repo 放在什麼路徑底下就可以了, 如果是在 Debian/Ubuntu 上使用 &lt;em&gt;Ominibus&lt;/em&gt; package 安裝的話, 路徑會是 &lt;code&gt;/var/opt/gitlab/git-data/repositories/&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;redmine-s-project-repository-setting:d4d5327eb990d67f6a7dd9f2969fdc97&#34;&gt;Redmine&amp;rsquo;s project repository setting&lt;/h2&gt;
+
+&lt;p&gt;值得一提的是, 以前總是在 Gitolite server 上的 bare Git directory 裡加上一條名為 Redmine 的 remote config, 然後在 &lt;em&gt;post-update hook&lt;/em&gt; 裡寫上 &lt;code&gt;git push -f redmine &amp;lt;branch_name&amp;gt;&lt;/code&gt; 之類的指令, 直接把 repo 同步到 Redmine server 上(Redmine server 上同時保存一份 bare directory), 然而這樣做其實有一個缺點, 就是會多出一條 redmine refs, 在某些地方(e.g. &lt;em&gt;gitweb&lt;/em&gt;)上顯得很礙眼. 而直到這幾天我才發現, 原來 &lt;code&gt;git push &amp;lt;repo&amp;gt;&lt;/code&gt; 裡的 repo 完全是可以顯式指定的, 因此在 Gitlab 上的 hook 只要寫好, 就不用再看到像是 &lt;code&gt;redmine/master&lt;/code&gt; 這種沒意義的雜訊了!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# In &amp;lt;repo_path&amp;gt;/hooks/post-update, add:
+git push -f &amp;lt;redmine_user@redmine_server:repo_path.git&amp;gt; *:*
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;pros:d4d5327eb990d67f6a7dd9f2969fdc97&#34;&gt;Pros&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;透過 &lt;em&gt;merge request&lt;/em&gt; 機制, 可以從工具層面保證 code review policy 的落實, 此外 diff tool 裡 line-by-line 的 comment 系統當然也是一大亮點.&lt;/li&gt;
+&lt;li&gt;使用者帳號與 LDAP 完美結合(以往只有 key/mail 的 identity), 保證了與其他系統對接的一致性, 也更符合公司內部的使用情境.&lt;/li&gt;
+&lt;li&gt;有一些實用的 APIs.&lt;/li&gt;
+&lt;li&gt;Project Owner 可以設定很多東西, 大量地減輕了原來 Git server admin 的瑣碎工作, 這真的很重要&amp;hellip;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on kfei&#39;s brainfuck</title>
+    <link>https://kfei.net/posts/post/</link>
+    <description>Recent content in Posts on kfei&#39;s brainfuck</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Sun, 25 Jan 2015 06:10:00 +0800</lastBuildDate>
+    <atom:link href="https://kfei.net/posts/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>sshcam v1.0.0-rc1 release notes</title>
+      <link>https://kfei.net/posts/2015/01/sshcam-v1.0.0-rc1-release-notes/</link>
+      <pubDate>Sun, 25 Jan 2015 06:10:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2015/01/sshcam-v1.0.0-rc1-release-notes/</guid>
+      <description>
+
+&lt;p&gt;這個&lt;a href=&#34;https://github.com/kfei/sshcam/releases/tag/1.0.0-rc1&#34;&gt;版本&lt;/a&gt;主要做的工作都是性能方面的，對於先前版本存在的畫面遲鈍感和高 CPU 佔用問題有明顯的改善。&lt;/p&gt;
+
+&lt;h2 id=&#34;大幅減少-i-o-次數:b699c3fc438c39ddf614f05bf360edcf&#34;&gt;大幅減少 I/O 次數&lt;/h2&gt;
+
+&lt;p&gt;I/O 本來就是昂貴的操作，而 terminal 又是 I/O device 裡特別慢的一種。在這種慢速裝置上進行大量 I/O，還包含了複雜的 ANSI color seqeunce，這是之前畫面更新遲鈍感的主因。因此：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;引入 frame caching 機制縮短 30% ~ 50% 的 ANSI 控制碼長度&lt;/li&gt;
+&lt;li&gt;ANSI 控制碼的化簡合併，從原來每個 pixel 一次 Print 合併為每個 row 一次 Print&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;當然，還可以再優化，例如 Print buffer 的長度應該按照實際因素來決定等。&lt;/p&gt;
+
+&lt;h2 id=&#34;大幅降低-cpu-使用率:b699c3fc438c39ddf614f05bf360edcf&#34;&gt;大幅降低 CPU 使用率&lt;/h2&gt;
+
+&lt;p&gt;透過 Go 的 &lt;a href=&#34;http://golang.org/pkg/net/http/pprof/&#34;&gt;pprof&lt;/a&gt; 工具，發現在彩色模式下，CPU 有幾乎 50% 的時間花在 &lt;a href=&#34;https://gist.github.com/kfei/c563d577c995f943260b#file-using-cie94-L6&#34;&gt;CIE94&lt;/a&gt; 公式裡的 &lt;a href=&#34;https://gist.github.com/kfei/c563d577c995f943260b#file-using-cie94-L5&#34;&gt;math.Sqrt&lt;/a&gt; 運算，這在 pixel 數較多或 fps 較高的情況下會給 CPU 帶來不小的壓力。因此：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;將彩色模式下預設的色距算法改為 YIQ 空間裡的線性距離&lt;/li&gt;
+&lt;li&gt;加上 &lt;code&gt;--max-fps&lt;/code&gt; 參數控制每秒的張數上限&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>sshcam v0.9.8 release notes</title>
+      <link>https://kfei.net/posts/2015/01/sshcam-v0.9.8-release-notes/</link>
+      <pubDate>Mon, 19 Jan 2015 06:11:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2015/01/sshcam-v0.9.8-release-notes/</guid>
+      <description>
+
+&lt;p&gt;總算利用空閒的假日時間把 &lt;a href=&#34;https://github.com/kfei/sshcam&#34;&gt;sshcam&lt;/a&gt; 這兩個重要的功能補完了!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=pAa-pGda9kY&#34;&gt;&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/sWBkJ4BzRtmeZJT2zrI8_Screen%20Shot%202015-01-19%20at%2010.44.29%20PM.png&#34; alt=&#34;Screen Shot 2015-01-19 at 10.44.29 PM.png&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;2-倍垂直解析度:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;2 倍垂直解析度&lt;/h2&gt;
+
+&lt;p&gt;利用 Unicode HALF BLOCK 字元 (&lt;a href=&#34;http://www.alanwood.net/unicode/block_elements.html&#34;&gt;U+2580/U+2584&lt;/a&gt;) 在一個 row 裡面插入兩條水平掃描線. 解析度提高一倍之外, 每個 &amp;ldquo;pixel&amp;rdquo; 看起來也更趨近正方形:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://i.imgur.com/1lHcSkM.png&#34; alt=&#34;img&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ASCII Only:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/VNwTy4bqTSmbM5PgLppY_XD6A0EJ.png&#34; alt=&#34;XD6A0EJ.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Unicode HALF BLOCK:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再更進一步, 事實上 Unicode 字元集裡還有 QUADRANT BLOCK (U+2596 to U+259F) 可以同理將水平方向的 pixel 增加一倍, 不過依然還是只有兩個顏色可以用, 效果很有限就是了. 且考慮到目前畫面 refresh 已經有一些遲頓, 因此暫時不實作, 等 render 的效能問題解決之後再來玩.&lt;/p&gt;
+
+&lt;h2 id=&#34;彩色畫面:72d6bdeda4f56d8bc0d6c09dd0c546b6&#34;&gt;彩色畫面&lt;/h2&gt;
+
+&lt;p&gt;原來只支援灰階顯示的原因在於 RGB 到 xterm 256 色盤的映射, 用簡單幾何距離計算色距的效果太差, 畫面的辨識度比灰階模式低許多. 但後來試了 &lt;a href=&#34;http://www.chromapure.com/colorscience-CIE94.asp&#34;&gt;CIE94&lt;/a&gt; 演算法之後發現效果有明顯改善, 因此也就加上 &lt;code&gt;--color&lt;/code&gt; 模式.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Grayscale:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/WaO5ZdudTwqbVlcjQTID_Pq91Jwa.png&#34; alt=&#34;Pq91Jwa.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Colorized:&lt;/strong&gt;
+&lt;img src=&#34;http://user-image.logdown.io/user/4546/blog/4576/post/251784/1s4rAE4lS3ezwMLy4E5W_2fVyRTJ.png&#34; alt=&#34;2fVyRTJ.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;不過, 彩色模式下的畫面 refresh 遲頓感似乎又升高了一級, 猜測可能跟大量的 ANSI 控制碼有關, 這個問題留待有時間再來研究研究. (&lt;em&gt;Update 20150120:&lt;/em&gt; 遲鈍感已透過引入 frame caching 及大量減少 Printf 獲得改善) 再來如果還想更暴力一點, 其實已經有不少 terminal emulator &lt;a href=&#34;https://gist.github.com/XVilka/8346728&#34;&gt;支援 True Color 模式&lt;/a&gt;了&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;最後, 這一連串的過程讓我恍然大悟覺得原來彩色電視機才是人類科技真正偉大的發明啊!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Docker: 使用 s6 作為多服務容器的啟動管理程序</title>
+      <link>https://kfei.net/posts/2014/12/docker-%E4%BD%BF%E7%94%A8-s6-%E4%BD%9C%E7%82%BA%E5%A4%9A%E6%9C%8D%E5%8B%99%E5%AE%B9%E5%99%A8%E7%9A%84%E5%95%9F%E5%8B%95%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F/</link>
+      <pubDate>Sat, 06 Dec 2014 16:58:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/12/docker-%E4%BD%BF%E7%94%A8-s6-%E4%BD%9C%E7%82%BA%E5%A4%9A%E6%9C%8D%E5%8B%99%E5%AE%B9%E5%99%A8%E7%9A%84%E5%95%9F%E5%8B%95%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言:8ac442f540b3d692a677bf03e4d50441&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;最近在打包 &lt;a href=&#34;https://github.com/kfei/docktorrent&#34;&gt;docktorrent&lt;/a&gt; 的過程中，遇到了在 container 裡多服務的啟動和管理問題，包含 process init，signal handle，monitor，orphan reaping 等等。把 init process 的 survey 心得及最後決定的 image 架構記錄一下，有錯請指正。&lt;/p&gt;
+
+&lt;h2 id=&#34;在一個容器裡跑多個服務-你確定:8ac442f540b3d692a677bf03e4d50441&#34;&gt;在一個容器裡跑多個服務？你確定？&lt;/h2&gt;
+
+&lt;p&gt;雖然 Docker 官方總是建議一個 container 只跑一個特定服務，然而在很多情況下，將幾個高度耦合的服務封裝在同一個 container 中一起跑也是很乾脆的做法，相對於內建難用的 linking 或透過 fig 管理多 container，有時候還方便的多。&lt;/p&gt;
+
+&lt;p&gt;聽聽 &lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;Phusion&lt;/a&gt; 對於這個問題是怎麼說的：&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;But I thought Docker is about running a single process in a container?&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;Absolutely not true. Docker runs fine with multiple processes in a container. In fact, there is no technical reason why you should limit yourself to one process – it only makes things harder for you and breaks all kinds of essential system functionality, e.g. syslog.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;We encourage you to use multiple processes.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;沒有-init-process-會怎樣:8ac442f540b3d692a677bf03e4d50441&#34;&gt;沒有 init process 會怎樣？&lt;/h2&gt;
+
+&lt;p&gt;然而，一旦跑了多個 process，誰當老大（PID = 1）就會是個很重要的問題。在 docktorrent 一開始的打包方法中，我的 entrypoint 腳本大概是像這樣：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Start satellite services
+/etc/init.d/nginx start
+/etc/init.d/php5-fpm start
+
+# Turn to rTorrent
+exec rtorrent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;也就是說把 nginx 和 php5-fpm 跑起來後，執行 rTorrent 並且把 PID 1 交給他。會讓 rTorrent 作為 PID 1 的原因在於 &lt;code&gt;docker stop&lt;/code&gt; 只會把 SIGTERM 送給 container 中的 PID 1 process，而 rTorrent 是整個 container 中唯一需要 graceful shutdown 的，所以讓他去接 signal。但這種做法馬上就會發現 &lt;code&gt;ps -ef&lt;/code&gt; 出現一大堆 &lt;code&gt;[php] &amp;lt;defunct&amp;gt;&lt;/code&gt; process，或許這是那些 PHP process 自己的問題，但作為 PID 1 的 rTorrent 不能好好回收這些孤兒，似乎也不太理想。一般來說，作為系統頭號 process 應該要負幾個基本責任：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;依序啟動所有該啟動的服務（process）然後常駐背景&lt;/li&gt;
+&lt;li&gt;在系統終止時正常關閉（graceful shutdown）這些服務&lt;/li&gt;
+&lt;li&gt;隨時回收系統上所有無主孤魂（orphan process）&lt;/li&gt;
+&lt;li&gt;可以 respawn 異常掛掉的服務&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;因此就有必要找個（或者自幹一個）專職的 PID 1，也就是 &lt;a href=&#34;https://en.wikipedia.org/wiki/Init&#34;&gt;init&lt;/a&gt; 程序來作為 container 執行時的入口。當然，考慮到最後的 image 要盡量精簡，像 Upstart，Systemd 或是 OpenRC 這種重型的方案在 container 環境就暫且先不考慮了。&lt;/p&gt;
+
+&lt;h2 id=&#34;supervisord:8ac442f540b3d692a677bf03e4d50441&#34;&gt;Supervisord&lt;/h2&gt;
+
+&lt;p&gt;於是首先看看 Docker &lt;a href=&#34;https://docs.docker.com/articles/using_supervisord/&#34;&gt;官方推薦&lt;/a&gt; 的 &lt;a href=&#34;http://supervisord.org/&#34;&gt;Supervisord&lt;/a&gt;，透過設定檔來配置服務的方式，試用了一下發現還算簡單易用，一個 &lt;code&gt;supervisord.conf&lt;/code&gt; 的內容大概是這樣寫：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[supervisord]
+nodaemon=true
+
+[program:sshd]
+command=/usr/sbin/sshd -D
+
+[program:apache2]
+command=/bin/bash -c &amp;quot;source /etc/apache2/envvars &amp;amp;&amp;amp; /usr/sbin/apache2 -DFOREGROUND&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可惜 Supervisord 的設計並不是用來作為 init process 使用的，這在其首頁上已有宣告：&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;It shares some of the same goals of programs like launchd, daemontools, and runit. Unlike some of these programs, it is not meant to be run as a substitute for init as “process id 1”. Instead it is meant to be used to control processes related to a project or a customer, and is meant to start like any other program at boot time.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;經過測試，Supervisord 在接收到 &lt;code&gt;docker stop&lt;/code&gt; 送來的 SIGTERM 時，會把訊號轉送給其他 process，等待所有服務 graceful shutdown。然而，孤兒 processes 的問題也確實沒有解決，整個 container 還是充滿 zombie。再說 Supervisord 是 Python 寫成的，要是疊加在 &lt;code&gt;debian:jessie&lt;/code&gt; 上足足要增加 45MB 的 image size，加上 Python 在執行階段的成本，僅僅為了跑多服務似乎不大划算。&lt;/p&gt;
+
+&lt;h2 id=&#34;runit:8ac442f540b3d692a677bf03e4d50441&#34;&gt;Runit&lt;/h2&gt;
+
+&lt;p&gt;下一位，&lt;a href=&#34;http://smarden.org/runit/&#34;&gt;Runit&lt;/a&gt;。Written in C，足夠輕量，疊加在 &lt;code&gt;debian:jessie&lt;/code&gt; 上只增加約 10MB 大小，貌似不錯。知名的 Phusion baseimage 系列也使用 Runit（不過只是用來做服務啟動和 supervision，對於 init process 他們自己寫了一隻叫 &lt;code&gt;my_init&lt;/code&gt; 的 Python 小程式）。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;/usr/bin/runsvdir -P /etc/sv&lt;/code&gt; 是 Runit 掃描並啟動服務的方式，其中 &lt;code&gt;/etc/sv&lt;/code&gt; 是符合 Runit &lt;a href=&#34;http://smarden.org/runit/faq.html#create&#34;&gt;規定格式&lt;/a&gt;的 service directory。舉例來說在 &lt;code&gt;phusion/baseimage&lt;/code&gt; 裡的目錄結構是這樣：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# tree /etc/service
+/etc/service
+|-- cron
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       |-- ok
+|       |-- pid
+|       |-- stat
+|       `-- status
+|-- sshd
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       |-- ok
+|       |-- pid
+|       |-- stat
+|       `-- status
+`-- syslog-ng
+    |-- run
+    `-- supervise
+        |-- control
+        |-- lock
+        |-- ok
+        |-- pid
+        |-- stat
+        `-- status
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;掃到服務之後 &lt;code&gt;runsvdir&lt;/code&gt; 會將服務交由另一隻 &lt;code&gt;runsv&lt;/code&gt; 去啟動並監管（supervise）。看起來也算簡單明瞭，但可惜的是 &lt;code&gt;runsvdir&lt;/code&gt; 並不適合直接作為 PID 1 使用，原因是他不做訊號轉送，因此 &lt;code&gt;docker stop&lt;/code&gt; 會導致 container 裡所有服務直接終結。&lt;/p&gt;
+
+&lt;p&gt;Runit 裡真正負責 PID 1 的是另一隻叫 &lt;code&gt;runit-init&lt;/code&gt; 的程式，&lt;code&gt;runit-init&lt;/code&gt; 啟動之後會把自己替換為 &lt;code&gt;runit&lt;/code&gt;，然後再叫出 &lt;code&gt;runsvdir&lt;/code&gt;，於是整個 process tree 大概就會變這樣：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;runit ─── runsvdir ─┬─ runsv syslog-ng ─── syslog-ng -F
+      	            ├─ runsv sshd ─── /usr/sbin/sshd -D
+                    ├─ runsv crond ─── /usr/sbin/crond -f
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;除了 process tree 深度增加一層不太爽之外，&lt;code&gt;runit-init&lt;/code&gt; 還另外引進了 run level 的問題，同樣的，只是為了在 container 裡多跑幾個服務要搞這麼多東西似乎有點小題大做了。&lt;/p&gt;
+
+&lt;h2 id=&#34;s6:8ac442f540b3d692a677bf03e4d50441&#34;&gt;s6&lt;/h2&gt;
+
+&lt;p&gt;終於來到今天的主角了。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://skarnet.org/software/s6/index.html&#34;&gt;s6&lt;/a&gt;，Written in C，所有 binary 加起來不到 900KB，非常輕量（也非常冷門）。主要有兩隻程式在工作：&lt;code&gt;s6-svscan&lt;/code&gt; 作為 PID 1 掃描所有服務並交由 &lt;code&gt;s6-supervise&lt;/code&gt; 實際啟動並接管。&lt;/p&gt;
+
+&lt;p&gt;關於 &lt;code&gt;s6-svscan&lt;/code&gt; 的幾件事：
+  - 收到 &lt;code&gt;docker stop&lt;/code&gt; 送進來的 SIGTERM 後，轉送給所有 &lt;code&gt;s6-supervise&lt;/code&gt; process 後接著執行 &lt;code&gt;.s6-svscan/finish&lt;/code&gt;，如果執行過程中 fail 掉就改跑 &lt;code&gt;.s6-svscan/crash&lt;/code&gt;。
+  - service directory 裡每個 service 可以有三個可執行檔：run/finish/crash，顧名思義簡單易用。
+  - 支援特殊 logger service，透過新建名為 &lt;code&gt;log&lt;/code&gt; 的 service directory 可以自定義 logger。
+  - 會一直在背景默默的持續 scan 目錄並回收系統裡的 orphan。&lt;/p&gt;
+
+&lt;p&gt;關於 &lt;code&gt;s6-supervise&lt;/code&gt; 的幾件事：
+  - 會先切換到服務的 service directory，接著預設執行 &lt;code&gt;./run&lt;/code&gt;。
+  - &lt;code&gt;./run&lt;/code&gt; 跑完了如果目錄裡存在 &lt;code&gt;./finish&lt;/code&gt; 就執行。
+  - &lt;code&gt;./finish&lt;/code&gt; 如果在五秒內沒有退出，會直接被 kill 掉，然後再回頭執行 &lt;code&gt;./run&lt;/code&gt;（這個行為可以自己控制）。&lt;/p&gt;
+
+&lt;p&gt;我的 service directory 結構長這樣：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# tree /service
+/service
+|-- nginx
+|   |-- event
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       `-- status
+|-- php5-fpm
+|   |-- event
+|   |-- run
+|   `-- supervise
+|       |-- control
+|       |-- lock
+|       `-- status
+`-- rtorrent
+    |-- event
+    |-- finish
+    |-- run
+    `-- supervise
+        |-- control
+        |-- lock
+        `-- status
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;試用過後發現 init process 四個基本需求都有滿足，也夠簡單。但是發現另一個問題：&lt;code&gt;s6-svscan&lt;/code&gt; 把 SIGTERM 送給 &lt;code&gt;s6-supervise&lt;/code&gt; 後馬上就退出了，導致 &lt;code&gt;s6-supervise&lt;/code&gt; 管轄的服務根本沒時間 graceful shutdown，這樣子 SIGTERM 有送豈不等於沒送？當然了，在 &lt;code&gt;.s6-svscan/finish&lt;/code&gt; 裡加一段 sleep 可以 work around，但這樣搞實在不太科學。後來才知道 s6 裡有一隻叫 &lt;code&gt;s6-svwait&lt;/code&gt; 的 user interface 可以用來等待特定或所有服務，於是在 &lt;code&gt;.s6-svscan/finish&lt;/code&gt; 加上一段等待主要服務結束的指令：&lt;code&gt;exec s6-svwait -d /service/rtorrent&lt;/code&gt;，這個問題算是解決。&lt;/p&gt;
+
+&lt;p&gt;到此，一個輕量又簡單易用的 init process 解決方案就有了。&lt;/p&gt;
+
+&lt;h2 id=&#34;取得-s6-的-static-binaries:8ac442f540b3d692a677bf03e4d50441&#34;&gt;取得 s6 的 static binaries&lt;/h2&gt;
+
+&lt;p&gt;參考網路上找到的&lt;a href=&#34;https://github.com/jprjr/docker-misc/blob/s6-builder/dockerfiles/arch-s6-builder/build.sh&#34;&gt;做法&lt;/a&gt;，先 build 一個基於 Arch 的 utility image 提供 s6 編譯環境，然後在其他要用到 s6 的 image repository 直接取用編好的 binary &lt;a href=&#34;https://github.com/kfei/s6-builder/blob/master/dist/s6-1.1.3.2-musl-static.tar.xz?raw=true&#34;&gt;tar ball&lt;/a&gt;。具體用法可以參考我的 GitHub &lt;a href=&#34;https://github.com/kfei/s6-builder&#34;&gt;repo&lt;/a&gt;，或者直接把 binary 抓去試試也行。&lt;/p&gt;
+
+&lt;h2 id=&#34;寫在後面:8ac442f540b3d692a677bf03e4d50441&#34;&gt;寫在後面&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;s6 似乎沒有處理啟動順序相依性的框架，如果需要可能要自己用 hook 的方法 work around。但話說回來，在 container 裡跑多服務跑到出現複雜的啟動相依性，好像也有點怪怪的（container VM 化？）。不過如果真的要這樣搞，那你需要的應該是更完整（肥）的 init process。&lt;/li&gt;
+&lt;li&gt;如果只是要處理 signal forward 讓服務可以 graceful shutdown，則完全沒有必要引入 init process，透過一隻 Bash wrapper 加幾行 trap/wait 就可以辦到，強者我同事 &lt;a href=&#34;https://github.com/tsaikd&#34;&gt;Bash 狂人&lt;/a&gt; 就是這樣搞的。&lt;/li&gt;
+&lt;li&gt;Survey 的過程中發現&lt;a href=&#34;http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/&#34;&gt;有人&lt;/a&gt;遇到一樣的問題，然後寫了一個叫 &lt;a href=&#34;https://github.com/chazomaticus/minit&#34;&gt;minit&lt;/a&gt; 的輕量 init process，看起來也還不錯，但我沒有試，如果你有使用心得歡迎分享。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;references:8ac442f540b3d692a677bf03e4d50441&#34;&gt;References&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://phusion.github.io/baseimage-docker/&#34;&gt;http://phusion.github.io/baseimage-docker/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/&#34;&gt;http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/&#34;&gt;http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Gitlab upgrade notes</title>
+      <link>https://kfei.net/posts/2014/09/gitlab-upgrade-notes/</link>
+      <pubDate>Mon, 29 Sep 2014 08:17:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/09/gitlab-upgrade-notes/</guid>
+      <description>&lt;p&gt;&lt;em&gt;Updated for Omnibus 7.6.2 package - 20150128&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that for an &lt;strong&gt;omnibus installation&lt;/strong&gt;, Gitlab files are under &lt;code&gt;/var/opt/gitlab&lt;/code&gt; and &lt;code&gt;/opt/gitlab/embedded/service&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Before any action, stop services that may change database:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl stop unicorn
+gitlab-ctl stop sidekiq
+gitlab-ctl stop nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create a backup (will result in a tar ball under &lt;code&gt;/var/opt/gitlab/backups/&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-rake gitlab:backup:create
+cp /etc/gitlab/gitlab.rb /etc/gitlab/gitlab.rb.bak
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Install new version, which automatically remove the previous version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;dpkg -i ${NEW_VERSION}.deb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Remove previous configs in case you have some customized settings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-rake gitlab:backup:restore
+# BACKUP=timestamp_of_backup is optional
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Restore configs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;mv /etc/gitlab/gitlab.rb.bak /etc/gitlab/gitlab.rb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Start the upgrade process (including database migrations):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl reconfigure
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Maybe) If reconfiguration throws some exception about postgresql:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl start postgresql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Maybe) Restore hacked files, e.g., logo_white.png, favicon.ico, etc.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cp /path/to/customized/logo-white.png /opt/gitlab/embedded/service/gitlab-rails/public/assets/logo-white-xxxxxxx.png
+gitlab-rake cache:clear RAILS_ENV=production
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Restart Gitlab instance and check if it works:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;gitlab-ctl restart
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>可憐的 No-IP</title>
+      <link>https://kfei.net/posts/2014/07/%E5%8F%AF%E6%86%90%E7%9A%84-no-ip/</link>
+      <pubDate>Tue, 01 Jul 2014 01:52:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/07/%E5%8F%AF%E6%86%90%E7%9A%84-no-ip/</guid>
+      <description>&lt;p&gt;微軟聲稱 No-IP 旗下 23 個 domain 嚴重地被 malware creators 濫用, 因此要求聯邦法院將該 23 個 domain 的管轄權判給微軟, 好讓其可以 &lt;strong&gt;過濾&lt;/strong&gt; 惡意網域, &lt;strong&gt;重定向&lt;/strong&gt; 惡意流量, &lt;strong&gt;造福&lt;/strong&gt; 廣大的網路用戶, &lt;strong&gt;維繫&lt;/strong&gt; 地球和平.&lt;/p&gt;
+
+&lt;p&gt;而聯邦法院居然還真的准了!!!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.noip.com/blog/2014/06/30/ips-formal-statement-microsoft-takedown/&#34;&gt;https://www.noip.com/blog/2014/06/30/ips-formal-statement-microsoft-takedown/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;這絕對是史上最扯蛋的判決之一, 美國的恐龍法官和微軟的無恥程度同樣讓人驚嘆不已&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;按照這個神邏輯, Sony 可以跟法庭主張 YouTube 上經常有人上傳侵權影片, 然後申請接管 YouTube.com, 接著就可以做一些 &lt;strong&gt;善意&lt;/strong&gt; 的 traffic re-routing! 同理, 隨便一家作業系統廠商也可以跟法庭主張因為微軟的作業系統根本是 malware 溫床(事實如此), 所以要接管所有安裝了 Windows 系統的電腦?&lt;/p&gt;
+
+&lt;p&gt;結果是 No-IP 絕大多數無辜使用者被迫斷線, 因為 &lt;strong&gt;微軟的垃圾技術&lt;/strong&gt; 根本支撐不了 No-IP 的 daily requests.&lt;/p&gt;
+
+&lt;p&gt;雖然我改用 Cloudflare 很久了. 在此還是為曾經的 No-IP 默哀.&lt;/p&gt;
+
+&lt;p&gt;後記. 現在透過 &lt;code&gt;dig -t ns no-ip.biz&lt;/code&gt; 可以發現 no-ip.biz 已經被 &lt;strong&gt;microsoftinternetsafety.net&lt;/strong&gt; 接管, 網友表示:
+&amp;gt; The funny thing is that &amp;ldquo;microsoftinternetsafety.net&amp;rdquo; sounds just like a domain that a fake antivirus software would use.&lt;/p&gt;
+
+&lt;p&gt;真的! M$ 這個爛 domain 超像惡意程式假造安全工具時會取的名字, 就跟惡霸假裝好人一樣.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Persistent cache in QEMU or librbd?</title>
+      <link>https://kfei.net/posts/2014/06/persistent-cache-in-qemu-or-librbd/</link>
+      <pubDate>Fri, 13 Jun 2014 09:05:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/persistent-cache-in-qemu-or-librbd/</guid>
+      <description>&lt;p&gt;我們知道無論是 QEMU 或是 librbd 都有提供 writeback cache. 同時也有兩個明顯的效能議題:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;cache 的生命週期跟隨 QEMU process, 也就是說一旦 VM shutdown, cache 也就跟著消失.&lt;/li&gt;
+&lt;li&gt;多個 QEMU process 間無法共享 cache, 而這在某些情境 (e.g. VDI) 下卻非常有用.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;解決這兩個問題的方式無非是將 cache 持久化在一些高速裝置上. 事實上大約一年前在 QEMU 的 mailing list 上就&lt;a href=&#34;https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg03649.html&#34;&gt;討論&lt;/a&gt;過這個議題, Ceph 的作者也發表了看法, 只可惜後續好像沒什麼進展?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CRUSH on single host</title>
+      <link>https://kfei.net/posts/2014/06/crush-on-single-host/</link>
+      <pubDate>Wed, 11 Jun 2014 03:36:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/crush-on-single-host/</guid>
+      <description>&lt;p&gt;The CRUSH algorithm intends to distribute objects across different hosts, so if
+you set up all OSDs on the same host, CRUSH will complians. For instance,
+a Ceph cluster with 3 OSDs on single host will likely get a &lt;code&gt;65 active, 54
+active+degraded, 73 active+remapped&lt;/code&gt; state when fresh-deployed, which was
+supposed to be &lt;code&gt;192 active+clean&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;But sometimes we really expect it to work on just one host, in order to change
+CRUSH&amp;rsquo;s policy, get the current CRUSH map and add a simple fix, then push the
+map back to cluster:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo ceph osd getcrushmap -o /tmp/crushmap
+sudo crushtool -d /tmp/crushmap -o /tmp/crushmap.txt
+sudo vi /tmp/crushmap.txt
+# Find a line: &amp;quot;step chooseleaf firstn 0 type host&amp;quot;,
+# and change it to &amp;quot;step chooseleaf firstn 0 type osd&amp;quot;.
+sudo crushtool -c /tmp/crushmap.txt -o /tmp/crushmap.new 
+sudo ceph osd setcrushmap -i /tmp/crushmap.new
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>我難過</title>
+      <link>https://kfei.net/posts/2014/06/%E6%88%91%E9%9B%A3%E9%81%8E/</link>
+      <pubDate>Mon, 09 Jun 2014 10:20:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/%E6%88%91%E9%9B%A3%E9%81%8E/</guid>
+      <description>
+
+&lt;p&gt;今天才知道這一個月前的舊聞.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://au.redhat.com/about/news/press-archive/2014/4/red-hat-to-acquire-inktank-provider-of-ceph&#34; title=&#34;sigh&#34;&gt;邪惡的 Redhat 以 1.75 億美金收購 Inktank&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;懶人包:d32c5c621197137b7c785da124b512ed&#34;&gt;懶人包&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;GlusterFS 作者對此發表了一篇 &lt;a href=&#34;http://pl.atyp.us/2014-04-inktank-acquisition.html&#34;&gt;blog&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Ceph 作者對此發表了一篇 &lt;a href=&#34;http://ceph.com/community/red-hat-to-acquire-inktank/&#34;&gt;blog&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Redhat 的&lt;a href=&#34;http://www.redhat.com/inktank/&#34;&gt;官方聲明&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;聖戰的終結:d32c5c621197137b7c785da124b512ed&#34;&gt;聖戰的終結&lt;/h2&gt;
+
+&lt;p&gt;一直以來, 在眾多分布式儲存系統中最經常被拿來一對一釘孤支的應該就屬 Ceph 和 Gluster 了 (Google: ceph vs gluster 便知). 其中 Gluster 在 2011 年已被邪惡的 Redhat 買下, 而 Ceph (Inktank) 則是背後有陰險的 Ubuntu Canonical 偷偷力挺, 雙方一時瑜亮, 勢同水火.&lt;/p&gt;
+
+&lt;p&gt;就在這種社群/團隊互尬的數年裡, 被嗆不能做 snapshot 的就趕快實作出 snapshot, 被嗆佈署困難的就趕快提供自動佈署工具等等&amp;hellip; 這是使用者獲利的時代!&lt;/p&gt;
+
+&lt;p&gt;直到邪惡的 Redhat 出手將 Inktank 買下.&lt;/p&gt;
+
+&lt;h2 id=&#34;商業-vs-社群:d32c5c621197137b7c785da124b512ed&#34;&gt;商業 vs. 社群&lt;/h2&gt;
+
+&lt;p&gt;這本是一個殘酷的命題.&lt;/p&gt;
+
+&lt;p&gt;新聞出來後, Ceph 社群開發者紛紛表示: &lt;strong&gt;原來我白白為 Redhat 打了這麼多工!&lt;/strong&gt;
+而 Gluster 社群開發者紛紛表示: &lt;strong&gt;(Appear Offline)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;雖然個人不喜歡邪惡的 Redhat (不要問), 但事情總會有好的一面, 至少 Ceph 可以得到更多的開發資源, 更完(ㄒㄧㄝˊ)整( ㄜˋ)的生態系, 更有本錢和 Propietary Solutions 對抗. 而 Gluster &amp;hellip;, 讓我們繼續看下去吧!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The TDD Debate</title>
+      <link>https://kfei.net/posts/2014/06/the-tdd-debate/</link>
+      <pubDate>Fri, 06 Jun 2014 15:35:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/the-tdd-debate/</guid>
+      <description>&lt;p&gt;道在陰陽之外.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=z9quxZsLcfo&#34;&gt;https://www.youtube.com/watch?v=z9quxZsLcfo&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;其實我認為 DHH 大神這槍開得很好. 近年來多少為了 TDD 而 TDD 的專案?&lt;/p&gt;
+
+&lt;p&gt;TDD 不能真正的保證可測試性, 如同高覆蓋率並不保證測中要害一樣.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;快 TDD! 不然別人以為我們不懂 TDD!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;測試萬歲!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>4 ways to put the version number into setup.py for your Python package</title>
+      <link>https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/</link>
+      <pubDate>Wed, 04 Jun 2014 08:19:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/4-ways-to-put-the-version-number-into-setup.py-for-your-python-package/</guid>
+      <description>&lt;p&gt;Assume that we&amp;rsquo;re developing a Python package &lt;strong&gt;pypkg&lt;/strong&gt; with a directory structure like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pypkg
+  |+++- pypkg/
+  |       |+++- __init__.py
+  |
+  |+++- setup.py
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And we have a statement &lt;code&gt;__version__ = &#39;5.5.6.6&#39;&lt;/code&gt; in &lt;code&gt;pypkg/__init__.py&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So the first way will be just import the module &lt;code&gt;pypkg&lt;/code&gt; and then call &lt;code&gt;pypkg.__version__&lt;/code&gt; in the &lt;em&gt;setup&lt;/em&gt; block in &lt;code&gt;setup.py&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+import pypkg
+... (skipped)
+setup(
+	version = pypkg.__version__
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But sometimes we don&amp;rsquo;t want to import the module, so we can setup a regex to match version statement in &lt;code&gt;__init__.py&lt;/code&gt;, and just search that file for a match:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+def get_version():
+    VERSIONFILE = os.path.join(&#39;pypkg&#39;, &#39;__init__.py&#39;)
+    initfile_lines = open(VERSIONFILE, &#39;rt&#39;).readlines()
+    VSRE = r&amp;quot;^__version__ = [&#39;\&amp;quot;]([^&#39;\&amp;quot;]*)[&#39;\&amp;quot;]&amp;quot;
+    for line in initfile_lines:
+        mo = re.search(VSRE, line, re.M)
+        if mo:
+            return mo.group(1)
+    raise RuntimeError(&#39;Unable to find version string in %s.&#39; % (VERSIONFILE,))
+# ... (skipped)
+setup(
+	version = get_version()
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we want to get all metadatas (e.g. author) not just the version number, we can do it in the same way:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+module_file = open(&amp;quot;pypkg/__init__.py&amp;quot;).read()
+metadata = dict(re.findall(&amp;quot;__([a-z]+)__\s*=\s*&#39;([^&#39;]+)&#39;&amp;quot;, module_file))
+# ... (skipped)
+setup(
+	author = metadata[&#39;author&#39;]
+	version = metadata[&#39;version&#39;]
+)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we may want to separates the metadata from &lt;code&gt;pypkg/__init__.py&lt;/code&gt;, say we put the statement &lt;code&gt;__version__ = &#39;5.5.6.6&#39;&lt;/code&gt; into another file &lt;code&gt;pypkg/version.py&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# In setup.py
+exec(compile(open(&#39;pypkg/version.py&#39;).read(), &#39;pypkg/version.py&#39;, &#39;exec&#39;))
+# ... (skipped)
+setup(
+	version = __version__
+)
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>gc after git filter-branch</title>
+      <link>https://kfei.net/posts/2014/06/gc-after-git-filter-branch/</link>
+      <pubDate>Sun, 01 Jun 2014 07:41:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/06/gc-after-git-filter-branch/</guid>
+      <description>&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;git for-each-ref --format=&#39;delete %(refname)&#39; refs/original | git update-ref --stdin
+git reflog expire --expire=now --all
+git gc --prune=now
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ncurses wide charactor support</title>
+      <link>https://kfei.net/posts/2014/05/ncurses-wide-charactor-support/</link>
+      <pubDate>Fri, 23 May 2014 08:35:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/05/ncurses-wide-charactor-support/</guid>
+      <description>&lt;p&gt;Switch to libncurses&lt;strong&gt;w&lt;/strong&gt; if needed.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd /lib/x86_64-linux-gnu/
+unlink libncurses.so.5
+ln -s libncursesw.so.5 libncurses.so.5
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>4 kinds of behavior in glibc write buffer</title>
+      <link>https://kfei.net/posts/2014/05/4-kinds-of-behavior-in-glibc-write-buffer/</link>
+      <pubDate>Mon, 12 May 2014 06:02:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/05/4-kinds-of-behavior-in-glibc-write-buffer/</guid>
+      <description>&lt;p&gt;如果不強制呼叫 &lt;code&gt;fflush()&lt;/code&gt; 來將 userspace buffer 寫入 kernel buffer 裡的話, glibc 有以下幾種預設的行為:
+    - full buffer for disk file, 當緩衝區全滿或者 fd close 時寫入
+    - row buffer for tty, 當遇到換行符時寫入
+    - no buffer for stderr, 不緩衝, 每個 printf 都直接對應一次寫入&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Paxos</title>
+      <link>https://kfei.net/posts/2014/05/paxos/</link>
+      <pubDate>Fri, 09 May 2014 14:21:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/05/paxos/</guid>
+      <description>&lt;p&gt;搞不清楚 &lt;a href=&#34;http://en.wikipedia.org/wiki/Paxos_(computer_science)&#34;&gt;Paxos&lt;/a&gt; 演算法, 跟人家談什麼分布式系統? 話說回來, 真的弄懂 Paxos 的又有幾人?&lt;/p&gt;
+
+&lt;p&gt;就連 &lt;a href=&#34;http://en.wikipedia.org/wiki/Leslie_Lamport&#34;&gt;Leslie Lamport&lt;/a&gt; 自己, 也是前後經過&lt;a href=&#34;http://research.microsoft.com/en-us/um/people/lamport/pubs/pubs.html#lamport-paxos&#34;&gt;近十年的時間&lt;/a&gt;, 才磨出了這個以&amp;rdquo;難以理解&amp;rdquo;著名的演算法.&lt;/p&gt;
+
+&lt;p&gt;啃 Paper 放棄之餘, 發現一個中文 blog 對 Paxos 有很深入且精闢的探討:
+    1. &lt;a href=&#34;http://blog.csdn.net/chen77716/article/details/6166675&#34;&gt;Paxos - 算法形成理论&lt;/a&gt;
+    2. &lt;a href=&#34;http://blog.csdn.net/chen77716/article/details/6170235&#34;&gt;Paxos - 算法过程&lt;/a&gt;
+    3. &lt;a href=&#34;http://blog.csdn.net/chen77716/article/details/6172392&#34;&gt;Paxos - 实现探讨&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;其他有趣的事實:
+    - Leslie Lamport 於 2013 年獲得 Turing Award. (這是否與大數據時代, 分布式系統成為顯學有關?)
+    - Google 的人曾說過, 其他分布式演算法都是 Paxos 簡化形式. (2PC 協議其實就是 Paxos 中 leader 只提交一個 proposal 給 acceptor 的簡單情況.)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Numbers every programmer should know</title>
+      <link>https://kfei.net/posts/2014/05/numbers-every-programmer-should-know/</link>
+      <pubDate>Thu, 08 May 2014 10:14:00 +0800</pubDate>
+      
+      <guid>https://kfei.net/posts/2014/05/numbers-every-programmer-should-know/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://en.wikipedia.org/wiki/Jeff_Dean_%28computer_scientist%29&#34;&gt;Jeff Dean&lt;/a&gt; 大神&lt;a href=&#34;http://goo.gl/0MznW&#34;&gt;曾經說過&lt;/a&gt;, 有&lt;a href=&#34;https://gist.github.com/hellerbarde/2843375&#34;&gt;一些數字&lt;/a&gt;是每個 programmer 都要時刻勞記在心的.&lt;/p&gt;
+
+&lt;p&gt;然而, 硬體不停在進步, 這些數字也需要與時俱進, 於是就&lt;a href=&#34;http://colin-scott.github.io/blog/2012/12/24/latency-trends/&#34;&gt;有人&lt;/a&gt;做了一個&lt;a href=&#34;http://www.eecs.berkeley.edu/~rcs/research/interactive_latency.html&#34;&gt;小工具&lt;/a&gt;, 可以按年份估算這些 numbers.&lt;/p&gt;
+
+&lt;p&gt;同場加映: &lt;a href=&#34;https://plus.google.com/+KentonVarda/posts/TSDhe5CvaFe&#34;&gt;你所不了解的一些關於 Jeff Dean 的事實&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

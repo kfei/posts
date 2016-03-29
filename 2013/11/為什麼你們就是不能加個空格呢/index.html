@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" 為什麼你們就是不能加個空格呢? &middot;  kfei&#39;s brainfuck" />
+  	<meta property="og:site_name" content="kfei&#39;s brainfuck" />
+  	<meta property="og:url" content="https://kfei.net/posts/2013/11/%E7%82%BA%E4%BB%80%E9%BA%BC%E4%BD%A0%E5%80%91%E5%B0%B1%E6%98%AF%E4%B8%8D%E8%83%BD%E5%8A%A0%E5%80%8B%E7%A9%BA%E6%A0%BC%E5%91%A2/" />
+
+    
+    <script>
+      var addy = window.location.href;
+      if (addy.indexOf('http:') === 0 && addy.indexOf('http://localhost') != 0 ) {
+          window.location.href = addy.replace(/^http/, 'https')
+      }
+    </script>
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2013-11-25T21:14:00&#43;08:00" />
+
+    
+    <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    
+
+  <title>
+     為什麼你們就是不能加個空格呢? &middot;  kfei&#39;s brainfuck
+  </title>
+
+    <meta name="description" content="To dream and to build. To fail and to succeed." />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kfei.net/posts/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="https://kfei.net/posts/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://kfei.net/posts/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://kfei.net/posts/index.xml" rel="alternate" type="application/rss+xml" title="kfei&#39;s brainfuck" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="https://kfei.net/posts/2013/11/%E7%82%BA%E4%BB%80%E9%BA%BC%E4%BD%A0%E5%80%91%E5%B0%B1%E6%98%AF%E4%B8%8D%E8%83%BD%E5%8A%A0%E5%80%8B%E7%A9%BA%E6%A0%BC%E5%91%A2/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75632970-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://kfei.net/posts/">Posts</a>
+            </li>
+        
+            <h3>Elsewhere</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/kfei">GitHub repos</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://facebook.com/g8.kfei">Facebook timeline</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://twitter.com/linkfei">Twitter murmur</a>
+            </li>
+        
+            <h3>Contact me</h3>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://keybase.io/kfei">Keybase</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="https://kfei.net/posts/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<div class="post-template">
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">為什麼你們就是不能加個空格呢?</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2013-11-25T21:14:00&#43;08:00">
+            Nov 25, 2013
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      <p>看到網路上轉貼一個很有意思的 Google App.</p>
+
+<p><a href="https://chrome.google.com/webstore/detail/%E7%82%BA%E4%BB%80%E9%BA%BC%E4%BD%A0%E5%80%91%E5%B0%B1%E6%98%AF%E4%B8%8D%E8%83%BD%E5%8A%A0%E5%80%8B%E7%A9%BA%E6%A0%BC%E5%91%A2%EF%BC%9F/paphcfdffjnbcgkokihcdjliihicmbpd">為什麼你們就是不能加個空格呢?</a></p>
+
+<blockquote>
+<p>漢學家稱這個空白字元為「盤古之白」，因為它劈開了全形字和半形字之間的混沌。另有研究顯示，打字的時候不喜歡在中文和英文之間加空格的人，感情路都走得很辛苦，有七成的比例會在 34 歲的時候跟自己不愛的人結婚，而其餘三成的人最後只能把遺產留給自己的貓。畢竟愛情跟書寫都需要適時地留白。</p>
+</blockquote>
+
+<p>引言很靠北, 但真的是忍不住要起立鼓掌! 一語道破我多年來的心聲!</p>
+
+<p>一直以來, 無論在工作上或是私底下, 我絕不放過任何小小的機會, 去傳這 <strong>全型字與半形字與空白字元的三角關係</strong> 之道, 然而難免會有心灰意冷的時候, 也難免會懷疑這是不是自己的天秤座強迫症?</p>
+
+<p>終於知道原來我並不孤單, 重視細節也絕不是強迫症, 而是一種嚴謹的表現!</p>
+
+<p>忽然想起大學時期, 某位系上教授的一句話:</p>
+
+<blockquote>
+<p>你不夠嚴謹.</p>
+</blockquote>
+
+<p>話雖如此, 我還是不會裝這個 App, 原因很簡單: 當所有文章都被自動修繕, 就無法一眼看出文件內容的優劣.
+網路資訊爆量的時代, 你必然要有一種方法可以快速過濾你所汲取的訊息, 區分 <strong>文字</strong> 和 <strong>文件</strong>.</p>
+
+<p><strong>我習慣在第一眼先就空白字元的運用, 初步判定一篇文章甚至其作者的品質.</strong></p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://kfei.net/posts/">kfei</a></h4>
+  
+  <p>Hacker / Tenniser / Photographer / Diver / Entrepreneur</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Kaohsiung, Taiwan</span>
+    <span class="author-link icon-link"><a href="https://kfei.net">https://kfei.net</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=%e7%82%ba%e4%bb%80%e9%ba%bc%e4%bd%a0%e5%80%91%e5%b0%b1%e6%98%af%e4%b8%8d%e8%83%bd%e5%8a%a0%e5%80%8b%e7%a9%ba%e6%a0%bc%e5%91%a2%3f&amp;url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2f%25E7%2582%25BA%25E4%25BB%2580%25E9%25BA%25BC%25E4%25BD%25A0%25E5%2580%2591%25E5%25B0%25B1%25E6%2598%25AF%25E4%25B8%258D%25E8%2583%25BD%25E5%258A%25A0%25E5%2580%258B%25E7%25A9%25BA%25E6%25A0%25BC%25E5%2591%25A2%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2f%25E7%2582%25BA%25E4%25BB%2580%25E9%25BA%25BC%25E4%25BD%25A0%25E5%2580%2591%25E5%25B0%25B1%25E6%2598%25AF%25E4%25B8%258D%25E8%2583%25BD%25E5%258A%25A0%25E5%2580%258B%25E7%25A9%25BA%25E6%25A0%25BC%25E5%2591%25A2%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2f%25E7%2582%25BA%25E4%25BB%2580%25E9%25BA%25BC%25E4%25BD%25A0%25E5%2580%2591%25E5%25B0%25B1%25E6%2598%25AF%25E4%25B8%258D%25E8%2583%25BD%25E5%258A%25A0%25E5%2580%258B%25E7%25A9%25BA%25E6%25A0%25BC%25E5%2591%25A2%2f&amp;description=%e7%82%ba%e4%bb%80%e9%ba%bc%e4%bd%a0%e5%80%91%e5%b0%b1%e6%98%af%e4%b8%8d%e8%83%bd%e5%8a%a0%e5%80%8b%e7%a9%ba%e6%a0%bc%e5%91%a2%3f"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fkfei.net%2fposts%2f2013%2f11%2f%25E7%2582%25BA%25E4%25BB%2580%25E9%25BA%25BC%25E4%25BD%25A0%25E5%2580%2591%25E5%25B0%25B1%25E6%2598%25AF%25E4%25B8%258D%25E8%2583%25BD%25E5%258A%25A0%25E5%2580%258B%25E7%25A9%25BA%25E6%25A0%25BC%25E5%2591%25A2%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+</div>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">kfei&#39;s brainfuck</a> </section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://kfei.net/posts/js/index.js"></script>
+    
+</body>
+</html>
+
