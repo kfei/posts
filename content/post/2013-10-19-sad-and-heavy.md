@@ -32,3 +32,7 @@ Barton 去了 Hedge Fund.
 > He died.
 
 Barton 還好好的活著, 但或許在一些人眼裡, 他其實已經死了.
+
+
+![Share status before
+migration](/images/assets/2013-10-19-sad-and-heavy/count.png)

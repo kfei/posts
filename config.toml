@@ -7,7 +7,7 @@ hasCJKLanguage = true
 
 [params]
   description = "To dream and to build. To fail and to succeed."
-  cover = "images/cover_milkr.jpg"
+  cover = "images/cover/milkr.jpg"
   author = "kfei"
   authorlocation = "Kaohsiung, Taiwan"
   authorwebsite = "https://kfei.net"
