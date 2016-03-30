@@ -655,6 +655,10 @@ body.nav-opened .nav {
     counter-reset: item;
 }
 
+.nav ul h3 {
+    margin-top: 1em;
+}
+
 .nav li:before {
     display: block;
     float: right;
