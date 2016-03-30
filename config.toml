@@ -4,6 +4,8 @@ languageCode = "zh-tw"
 title = "kfei's brainfuck"
 theme = "casper"
 hasCJKLanguage = true
+DisqusShortname = "nonsense-logdown"
+
 
 [params]
   description = "To dream and to build. To fail and to succeed."
