@@ -170,25 +170,36 @@
 
 <h2 id="前言:8ac442f540b3d692a677bf03e4d50441">前言</h2>
 
-<p>最近在打包 <a href="https://github.com/kfei/docktorrent">docktorrent</a> 的過程中，遇到了在 container 裡多服務的啟動和管理問題，包含 process init，signal handle，monitor，orphan reaping 等等。把 init process 的 survey 心得及最後決定的 image 架構記錄一下，有錯請指正。</p>
+<p>最近在打包 <a href="https://github.com/kfei/docktorrent">docktorrent</a>
+的過程中，遇到了在 container 裡多服務的啟動和管理問題，包含 process
+init，signal handle，monitor，orphan reaping 等等。把 init process 的 survey
+心得及最後決定的 image 架構記錄一下，有錯請指正。</p>
 
 <h2 id="在一個容器裡跑多個服務-你確定:8ac442f540b3d692a677bf03e4d50441">在一個容器裡跑多個服務？你確定？</h2>
 
-<p>雖然 Docker 官方總是建議一個 container 只跑一個特定服務，然而在很多情況下，將幾個高度耦合的服務封裝在同一個 container 中一起跑也是很乾脆的做法，相對於內建難用的 linking 或透過 fig 管理多 container，有時候還方便的多。</p>
+<p>雖然 Docker 官方總是建議一個 container
+只跑一個特定服務，然而在很多情況下，將幾個高度耦合的服務封裝在同一個 container
+中一起跑也是很乾脆的做法，相對於內建難用的 linking 或透過 fig 管理多
+container，有時候還方便的多。</p>
 
-<p>聽聽 <a href="http://phusion.github.io/baseimage-docker/">Phusion</a> 對於這個問題是怎麼說的：</p>
+<p>聽聽 <a href="http://phusion.github.io/baseimage-docker/">Phusion</a>
+對於這個問題是怎麼說的：</p>
 
 <blockquote>
 <p>&ldquo;But I thought Docker is about running a single process in a container?&rdquo;</p>
 
-<p>Absolutely not true. Docker runs fine with multiple processes in a container. In fact, there is no technical reason why you should limit yourself to one process – it only makes things harder for you and breaks all kinds of essential system functionality, e.g. syslog.</p>
+<p>Absolutely not true. Docker runs fine with multiple processes in a container.
+In fact, there is no technical reason why you should limit yourself to one
+process – it only makes things harder for you and breaks all kinds of
+essential system functionality, e.g. syslog.</p>
 
 <p><strong>We encourage you to use multiple processes.</strong></p>
 </blockquote>
 
 <h2 id="沒有-init-process-會怎樣:8ac442f540b3d692a677bf03e4d50441">沒有 init process 會怎樣？</h2>
 
-<p>然而，一旦跑了多個 process，誰當老大（PID = 1）就會是個很重要的問題。在 docktorrent 一開始的打包方法中，我的 entrypoint 腳本大概是像這樣：</p>
+<p>然而，一旦跑了多個 process，誰當老大（PID = 1）就會是個很重要的問題。在
+docktorrent 一開始的打包方法中，我的 entrypoint 腳本大概是像這樣：</p>
 
 <pre><code># Start satellite services
 /etc/init.d/nginx start
@@ -198,7 +209,13 @@
 exec rtorrent
 </code></pre>
 
-<p>也就是說把 nginx 和 php5-fpm 跑起來後，執行 rTorrent 並且把 PID 1 交給他。會讓 rTorrent 作為 PID 1 的原因在於 <code>docker stop</code> 只會把 SIGTERM 送給 container 中的 PID 1 process，而 rTorrent 是整個 container 中唯一需要 graceful shutdown 的，所以讓他去接 signal。但這種做法馬上就會發現 <code>ps -ef</code> 出現一大堆 <code>[php] &lt;defunct&gt;</code> process，或許這是那些 PHP process 自己的問題，但作為 PID 1 的 rTorrent 不能好好回收這些孤兒，似乎也不太理想。一般來說，作為系統頭號 process 應該要負幾個基本責任：</p>
+<p>也就是說把 nginx 和 php5-fpm 跑起來後，執行 rTorrent 並且把 PID 1 交給他。會讓
+rTorrent 作為 PID 1 的原因在於 <code>docker stop</code> 只會把 SIGTERM 送給 container 中的
+PID 1 process，而 rTorrent 是整個 container 中唯一需要 graceful shutdown
+的，所以讓他去接 signal。但這種做法馬上就會發現 <code>ps -ef</code> 出現一大堆 <code>[php]
+&lt;defunct&gt;</code> process，或許這是那些 PHP process 自己的問題，但作為 PID
+1 的 rTorrent 不能好好回收這些孤兒，似乎也不太理想。一般來說，作為系統頭號
+process 應該要負幾個基本責任：</p>
 
 <ol>
 <li>依序啟動所有該啟動的服務（process）然後常駐背景</li>
@@ -207,11 +224,17 @@ exec rtorrent
 <li>可以 respawn 異常掛掉的服務</li>
 </ol>
 
-<p>因此就有必要找個（或者自幹一個）專職的 PID 1，也就是 <a href="https://en.wikipedia.org/wiki/Init">init</a> 程序來作為 container 執行時的入口。當然，考慮到最後的 image 要盡量精簡，像 Upstart，Systemd 或是 OpenRC 這種重型的方案在 container 環境就暫且先不考慮了。</p>
+<p>因此就有必要找個（或者自幹一個）專職的 PID 1，也就是
+<a href="https://en.wikipedia.org/wiki/Init">init</a> 程序來作為 container
+執行時的入口。當然，考慮到最後的 image 要盡量精簡，像 Upstart，Systemd 或是
+OpenRC 這種重型的方案在 container 環境就暫且先不考慮了。</p>
 
 <h2 id="supervisord:8ac442f540b3d692a677bf03e4d50441">Supervisord</h2>
 
-<p>於是首先看看 Docker <a href="https://docs.docker.com/articles/using_supervisord/">官方推薦</a> 的 <a href="http://supervisord.org/">Supervisord</a>，透過設定檔來配置服務的方式，試用了一下發現還算簡單易用，一個 <code>supervisord.conf</code> 的內容大概是這樣寫：</p>
+<p>於是首先看看 Docker
+<a href="https://docs.docker.com/articles/using_supervisord/">官方推薦</a>
+的 <a href="http://supervisord.org/">Supervisord</a>，透過設定檔來配置服務的方式，試用了一下發現還算簡單易用，一個
+<code>supervisord.conf</code> 的內容大概是這樣寫：</p>
 
 <pre><code>[supervisord]
 nodaemon=true
@@ -226,16 +249,29 @@ command=/bin/bash -c &quot;source /etc/apache2/envvars &amp;&amp; /usr/sbin/apac
 <p>可惜 Supervisord 的設計並不是用來作為 init process 使用的，這在其首頁上已有宣告：</p>
 
 <blockquote>
-<p>It shares some of the same goals of programs like launchd, daemontools, and runit. Unlike some of these programs, it is not meant to be run as a substitute for init as “process id 1”. Instead it is meant to be used to control processes related to a project or a customer, and is meant to start like any other program at boot time.</p>
+<p>It shares some of the same goals of programs like launchd, daemontools, and
+runit. Unlike some of these programs, it is not meant to be run as
+a substitute for init as “process id 1”. Instead it is meant to be used to
+control processes related to a project or a customer, and is meant to start
+like any other program at boot time.</p>
 </blockquote>
 
-<p>經過測試，Supervisord 在接收到 <code>docker stop</code> 送來的 SIGTERM 時，會把訊號轉送給其他 process，等待所有服務 graceful shutdown。然而，孤兒 processes 的問題也確實沒有解決，整個 container 還是充滿 zombie。再說 Supervisord 是 Python 寫成的，要是疊加在 <code>debian:jessie</code> 上足足要增加 45MB 的 image size，加上 Python 在執行階段的成本，僅僅為了跑多服務似乎不大划算。</p>
+<p>經過測試，Supervisord 在接收到 <code>docker stop</code> 送來的 SIGTERM
+時，會把訊號轉送給其他 process，等待所有服務 graceful shutdown。然而，孤兒
+processes 的問題也確實沒有解決，整個 container 還是充滿 zombie。再說
+Supervisord 是 Python 寫成的，要是疊加在 <code>debian:jessie</code> 上足足要增加 45MB
+的 image size，加上 Python 在執行階段的成本，僅僅為了跑多服務似乎不大划算。</p>
 
 <h2 id="runit:8ac442f540b3d692a677bf03e4d50441">Runit</h2>
 
-<p>下一位，<a href="http://smarden.org/runit/">Runit</a>。Written in C，足夠輕量，疊加在 <code>debian:jessie</code> 上只增加約 10MB 大小，貌似不錯。知名的 Phusion baseimage 系列也使用 Runit（不過只是用來做服務啟動和 supervision，對於 init process 他們自己寫了一隻叫 <code>my_init</code> 的 Python 小程式）。</p>
+<p>下一位，<a href="http://smarden.org/runit/">Runit</a>。Written in C，足夠輕量，疊加在
+<code>debian:jessie</code> 上只增加約 10MB 大小，貌似不錯。知名的 Phusion baseimage
+系列也使用 Runit（不過只是用來做服務啟動和 supervision，對於 init process
+他們自己寫了一隻叫 <code>my_init</code> 的 Python 小程式）。</p>
 
-<p><code>/usr/bin/runsvdir -P /etc/sv</code> 是 Runit 掃描並啟動服務的方式，其中 <code>/etc/sv</code> 是符合 Runit <a href="http://smarden.org/runit/faq.html#create">規定格式</a>的 service directory。舉例來說在 <code>phusion/baseimage</code> 裡的目錄結構是這樣：</p>
+<p><code>/usr/bin/runsvdir -P /etc/sv</code> 是 Runit 掃描並啟動服務的方式，其中 <code>/etc/sv</code>
+是符合 Runit <a href="http://smarden.org/runit/faq.html#create">規定格式</a>的 service
+directory。舉例來說在 <code>phusion/baseimage</code> 裡的目錄結構是這樣：</p>
 
 <pre><code># tree /etc/service
 /etc/service
@@ -268,33 +304,53 @@ command=/bin/bash -c &quot;source /etc/apache2/envvars &amp;&amp; /usr/sbin/apac
         `-- status
 </code></pre>
 
-<p>掃到服務之後 <code>runsvdir</code> 會將服務交由另一隻 <code>runsv</code> 去啟動並監管（supervise）。看起來也算簡單明瞭，但可惜的是 <code>runsvdir</code> 並不適合直接作為 PID 1 使用，原因是他不做訊號轉送，因此 <code>docker stop</code> 會導致 container 裡所有服務直接終結。</p>
+<p>掃到服務之後 <code>runsvdir</code> 會將服務交由另一隻 <code>runsv</code>
+去啟動並監管（supervise）。看起來也算簡單明瞭，但可惜的是 <code>runsvdir</code>
+並不適合直接作為 PID 1 使用，原因是他不做訊號轉送，因此 <code>docker stop</code> 會導致
+container 裡所有服務直接終結。</p>
 
-<p>Runit 裡真正負責 PID 1 的是另一隻叫 <code>runit-init</code> 的程式，<code>runit-init</code> 啟動之後會把自己替換為 <code>runit</code>，然後再叫出 <code>runsvdir</code>，於是整個 process tree 大概就會變這樣：</p>
+<p>Runit 裡真正負責 PID 1 的是另一隻叫 <code>runit-init</code> 的程式，<code>runit-init</code>
+啟動之後會把自己替換為 <code>runit</code>，然後再叫出 <code>runsvdir</code>，於是整個 process tree
+大概就會變這樣：</p>
 
 <pre><code>runit ─── runsvdir ─┬─ runsv syslog-ng ─── syslog-ng -F
       	            ├─ runsv sshd ─── /usr/sbin/sshd -D
                     ├─ runsv crond ─── /usr/sbin/crond -f
 </code></pre>
 
-<p>除了 process tree 深度增加一層不太爽之外，<code>runit-init</code> 還另外引進了 run level 的問題，同樣的，只是為了在 container 裡多跑幾個服務要搞這麼多東西似乎有點小題大做了。</p>
+<p>除了 process tree 深度增加一層不太爽之外，<code>runit-init</code> 還另外引進了 run level
+的問題，同樣的，只是為了在 container
+裡多跑幾個服務要搞這麼多東西似乎有點小題大做了。</p>
 
 <h2 id="s6:8ac442f540b3d692a677bf03e4d50441">s6</h2>
 
 <p>終於來到今天的主角了。</p>
 
-<p><a href="http://skarnet.org/software/s6/index.html">s6</a>，Written in C，所有 binary 加起來不到 900KB，非常輕量（也非常冷門）。主要有兩隻程式在工作：<code>s6-svscan</code> 作為 PID 1 掃描所有服務並交由 <code>s6-supervise</code> 實際啟動並接管。</p>
+<p><a href="http://skarnet.org/software/s6/index.html">s6</a>，Written in C，所有 binary
+加起來不到 900KB，非常輕量（也非常冷門）。主要有兩隻程式在工作：<code>s6-svscan</code>
+作為 PID 1 掃描所有服務並交由 <code>s6-supervise</code> 實際啟動並接管。</p>
 
-<p>關於 <code>s6-svscan</code> 的幾件事：
-  - 收到 <code>docker stop</code> 送進來的 SIGTERM 後，轉送給所有 <code>s6-supervise</code> process 後接著執行 <code>.s6-svscan/finish</code>，如果執行過程中 fail 掉就改跑 <code>.s6-svscan/crash</code>。
-  - service directory 裡每個 service 可以有三個可執行檔：run/finish/crash，顧名思義簡單易用。
-  - 支援特殊 logger service，透過新建名為 <code>log</code> 的 service directory 可以自定義 logger。
-  - 會一直在背景默默的持續 scan 目錄並回收系統裡的 orphan。</p>
+<p>關於 <code>s6-svscan</code> 的幾件事：</p>
 
-<p>關於 <code>s6-supervise</code> 的幾件事：
-  - 會先切換到服務的 service directory，接著預設執行 <code>./run</code>。
-  - <code>./run</code> 跑完了如果目錄裡存在 <code>./finish</code> 就執行。
-  - <code>./finish</code> 如果在五秒內沒有退出，會直接被 kill 掉，然後再回頭執行 <code>./run</code>（這個行為可以自己控制）。</p>
+<ul>
+<li>收到 <code>docker stop</code> 送進來的 SIGTERM 後，轉送給所有 <code>s6-supervise</code> process
+後接著執行 <code>.s6-svscan/finish</code>，如果執行過程中 fail 掉就改跑
+<code>.s6-svscan/crash</code>。</li>
+<li>service directory 裡每個 service
+可以有三個可執行檔：run/finish/crash，顧名思義簡單易用。</li>
+<li>支援特殊 logger service，透過新建名為 <code>log</code> 的 service directory 可以自定義
+logger。</li>
+<li>會一直在背景默默的持續 scan 目錄並回收系統裡的 orphan。</li>
+</ul>
+
+<p>關於 <code>s6-supervise</code> 的幾件事：</p>
+
+<ul>
+<li>會先切換到服務的 service directory，接著預設執行 <code>./run</code>。</li>
+<li><code>./run</code> 跑完了如果目錄裡存在 <code>./finish</code> 就執行。</li>
+<li><code>./finish</code> 如果在五秒內沒有退出，會直接被 kill 掉，然後再回頭執行
+<code>./run</code>（這個行為可以自己控制）。</li>
+</ul>
 
 <p>我的 service directory 結構長這樣：</p>
 
@@ -324,20 +380,42 @@ command=/bin/bash -c &quot;source /etc/apache2/envvars &amp;&amp; /usr/sbin/apac
         `-- status
 </code></pre>
 
-<p>試用過後發現 init process 四個基本需求都有滿足，也夠簡單。但是發現另一個問題：<code>s6-svscan</code> 把 SIGTERM 送給 <code>s6-supervise</code> 後馬上就退出了，導致 <code>s6-supervise</code> 管轄的服務根本沒時間 graceful shutdown，這樣子 SIGTERM 有送豈不等於沒送？當然了，在 <code>.s6-svscan/finish</code> 裡加一段 sleep 可以 work around，但這樣搞實在不太科學。後來才知道 s6 裡有一隻叫 <code>s6-svwait</code> 的 user interface 可以用來等待特定或所有服務，於是在 <code>.s6-svscan/finish</code> 加上一段等待主要服務結束的指令：<code>exec s6-svwait -d /service/rtorrent</code>，這個問題算是解決。</p>
+<p>試用過後發現 init process
+四個基本需求都有滿足，也夠簡單。但是發現另一個問題：<code>s6-svscan</code> 把 SIGTERM 送給
+<code>s6-supervise</code> 後馬上就退出了，導致 <code>s6-supervise</code> 管轄的服務根本沒時間
+graceful shutdown，這樣子 SIGTERM 有送豈不等於沒送？當然了，在
+<code>.s6-svscan/finish</code> 裡加一段 sleep 可以 work
+around，但這樣搞實在不太科學。後來才知道 s6 裡有一隻叫 <code>s6-svwait</code> 的 user
+interface 可以用來等待特定或所有服務，於是在 <code>.s6-svscan/finish</code>
+加上一段等待主要服務結束的指令：<code>exec s6-svwait -d
+/service/rtorrent</code>，這個問題算是解決。</p>
 
 <p>到此，一個輕量又簡單易用的 init process 解決方案就有了。</p>
 
 <h2 id="取得-s6-的-static-binaries:8ac442f540b3d692a677bf03e4d50441">取得 s6 的 static binaries</h2>
 
-<p>參考網路上找到的<a href="https://github.com/jprjr/docker-misc/blob/s6-builder/dockerfiles/arch-s6-builder/build.sh">做法</a>，先 build 一個基於 Arch 的 utility image 提供 s6 編譯環境，然後在其他要用到 s6 的 image repository 直接取用編好的 binary <a href="https://github.com/kfei/s6-builder/blob/master/dist/s6-1.1.3.2-musl-static.tar.xz?raw=true">tar ball</a>。具體用法可以參考我的 GitHub <a href="https://github.com/kfei/s6-builder">repo</a>，或者直接把 binary 抓去試試也行。</p>
+<p>參考網路上找到的<a href="https://github.com/jprjr/docker-misc/blob/s6-builder/dockerfiles/arch-s6-builder/build.sh">做法</a>，先
+build 一個基於 Arch 的 utility image 提供 s6 編譯環境，然後在其他要用到 s6
+的 image repository 直接取用編好的 binary <a href="https://github.com/kfei/s6-builder/blob/master/dist/s6-1.1.3.2-musl-static.tar.xz?raw=true">tar
+ball</a>。具體用法可以參考我的
+GitHub <a href="https://github.com/kfei/s6-builder">repo</a>，或者直接把 binary
+抓去試試也行。</p>
 
 <h2 id="寫在後面:8ac442f540b3d692a677bf03e4d50441">寫在後面</h2>
 
 <ul>
-<li>s6 似乎沒有處理啟動順序相依性的框架，如果需要可能要自己用 hook 的方法 work around。但話說回來，在 container 裡跑多服務跑到出現複雜的啟動相依性，好像也有點怪怪的（container VM 化？）。不過如果真的要這樣搞，那你需要的應該是更完整（肥）的 init process。</li>
-<li>如果只是要處理 signal forward 讓服務可以 graceful shutdown，則完全沒有必要引入 init process，透過一隻 Bash wrapper 加幾行 trap/wait 就可以辦到，強者我同事 <a href="https://github.com/tsaikd">Bash 狂人</a> 就是這樣搞的。</li>
-<li>Survey 的過程中發現<a href="http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/">有人</a>遇到一樣的問題，然後寫了一個叫 <a href="https://github.com/chazomaticus/minit">minit</a> 的輕量 init process，看起來也還不錯，但我沒有試，如果你有使用心得歡迎分享。</li>
+<li>s6 似乎沒有處理啟動順序相依性的框架，如果需要可能要自己用 hook 的方法 work
+around。但話說回來，在 container
+裡跑多服務跑到出現複雜的啟動相依性，好像也有點怪怪的（container VM
+化？）。不過如果真的要這樣搞，那你需要的應該是更完整（肥）的 init process。</li>
+<li>如果只是要處理 signal forward 讓服務可以 graceful
+shutdown，則完全沒有必要引入 init process，透過一隻 Bash wrapper 加幾行
+trap/wait 就可以辦到，可以參考<a href="https://github.com/gitlabhq/gitlabhq/pull/8486/files">我送給 GitLab
+的 PR</a>。</li>
+<li>Survey
+的過程中發現<a href="http://blog.chazomatic.us/2014/06/18/multiple-processes-inside-docker/">有人</a>遇到一樣的問題，然後寫了一個叫
+<a href="https://github.com/chazomaticus/minit">minit</a> 的輕量 init
+process，看起來也還不錯，但我沒有試，如果你有使用心得歡迎分享。</li>
 </ul>
 
 <h2 id="references:8ac442f540b3d692a677bf03e4d50441">References</h2>
@@ -400,6 +478,7 @@ command=/bin/bash -c &quot;source /etc/apache2/envvars &amp;&amp; /usr/sbin/apac
 
     
 
+<h3 style="font-weight: normal; margin-top: 3em;">看文章如果不回應, 跟條鹹魚有什麼分別?</h3>
 <div id="disqus_thread"></div>
 <script type="text/javascript">
   var disqus_shortname = 'nonsense-logdown';
